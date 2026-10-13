@@ -134,6 +134,19 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/iosApp-*
 ./gradlew :sharedLogic:allTests
 ```
 
+## Build notes
+
+- **`-Xexpect-actual-classes` in `:sharedLogic`.** Room 2.8+ KMP generates
+  per-target `actual object` companions for the `expect object
+  AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase>` in
+  `commonMain`. expect/actual for classes is still Beta in Kotlin, so the
+  generated `actual` file would otherwise emit warning
+  [KT-61573](https://youtrack.jetbrains.com/issue/KT-61573) on every
+  target. The compiler flag is set once at the top of the `kotlin { }`
+  block in `sharedLogic/build.gradle.kts` to silence it across all
+  targets (Android + both iOS). Remove the flag if/when Kotlin promotes
+  expect/actual classes to stable.
+
 # Architecture
 
 Kotlin Multiplatform with a thin UI shell on each platform:
