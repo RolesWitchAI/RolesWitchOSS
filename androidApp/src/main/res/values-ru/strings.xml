@@ -1,0 +1,333 @@
+<resources>
+    <string name="app_name">Roles Witch</string>
+
+    <!-- Foreground service -->
+    <string name="notification_channel_llm">Активные ответы</string>
+    <string name="notification_channel_llm_description">Постоянные уведомления о выполняемых запросах LLM и записи звонка.</string>
+    <string name="notification_channel_completion">Ответы чата</string>
+    <string name="notification_channel_completion_description">Всплывающее уведомление о новом ответе, пока приложение закрыто.</string>
+    <string name="notification_working">Генерация ответа…</string>
+    <string name="notification_downloading">Загрузка %1$s…</string>
+    <string name="notification_verifying">Проверка %1$s…</string>
+
+    <!-- Screens -->
+    <string name="tab_messages">Сообщения</string>
+
+    <!-- Common -->
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="delete">Удалить</string>
+    <string name="select">Выбрать</string>
+    <string name="messages_selected">%d выбрано</string>
+    <string name="edit">Редактировать</string>
+    <string name="ok">ОК</string>
+    <string name="back">Назад</string>
+    <string name="next">Далее</string>
+    <string name="copy">Копировать</string>
+    <string name="share">Поделиться...</string>
+    <string name="reset">Сбросить</string>
+    <string name="clear">Очистить</string>
+    <string name="close">Закрыть</string>
+    <string name="name_label">Название</string>
+    <string name="prompt">Промпт</string>
+    <string name="no_messages">Нет сообщений</string>
+
+    <!-- Assistant Screen -->
+    <string name="voice_assistant">Голосовой ассистент</string>
+    <string name="listening">Слушаю&#8230;</string>
+    <string name="thinking">Думаю&#8230;</string>
+    <string name="using_tool">Вызываю инструмент&#8230;</string>
+    
+    <string name="start_call">Начать вызов</string>
+    <string name="end_call">Завершить вызов</string>
+    <string name="mute">Микрофон выключен</string>
+    <string name="video">Видео</string>
+    <string name="mic_permission_required">Для звонков требуется разрешение на микрофон. Вы можете включить его в настройках приложения.</string>
+    <string name="camera_permission_required">Для видеозвонков требуется разрешение на камеру. Вы можете включить его в настройках приложения.</string>
+    <string name="vision_disabled_message">Распознавание изображений отключено, включите в настройках.</string>
+    <string name="video_call_mic_disabled">Для видеозвонков включите микрофон</string>
+    <string name="video_call_language_not_supported">Видеозвонки не поддерживаются для вашего языка</string>
+    <string name="video_call_enable_vosk">Для видеозвонков включите распознавание речи с помощью VOSK</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="you_are_muted">Микрофон выключен</string>
+
+    <!-- Camera -->
+    <string name="close_video">Закрыть видео</string>
+    <string name="switch_camera">Переключить камеру</string>
+
+    <!-- Messages Screen -->
+    <string name="ai_disclaimer">ИИ может ошибаться</string>
+    <string name="menu">Меню</string>
+    <string name="show_favorites">Показать избранные</string>
+    <string name="clear_history">Очистить историю</string>
+    <string name="type_message">Введите сообщение&#8230;</string>
+    <string name="cancel_edit">Отменить редактирование</string>
+    <string name="attach">Прикрепить</string>
+    <string name="photo_library">Выбрать из галереи</string>
+    <string name="take_photo">Сделать фото</string>
+    <string name="document">Документ</string>
+    <string name="remove">Удалить</string>
+    <string name="attached_image">Прикрепленное изображение</string>
+    <string name="attached_document">Прикрепленный документ</string>
+    <string name="multi_attach_gate_message">Некоторые модели не поддерживают несколько вложений</string>
+    <string name="send">Отправить</string>
+    <string name="stop">Стоп</string>
+    <string name="mark_favorite">В избранное</string>
+    <string name="unmark_favorite">Убрать из избранного</string>
+    <string name="show_reasoning">Показать рассуждения</string>
+    <string name="reasoning">Рассуждения</string>
+    <string name="clear_all_history">Очистить всю историю?</string>
+    <string name="favorites">Избранные сообщения</string>
+    <string name="no_favorites_yet">Пока нет избранных сообщений.\nНажмите и удерживайте сообщение, чтобы добавить в избранное.</string>
+    <string name="remove_from_favorites">Убрать из избранного</string>
+
+    <!-- Threads Screen -->
+    <string name="new_thread">Новый разговор</string>
+    <string name="delete_thread_confirm">Вы уверены, что хотите удалить эту ветку и все её сообщения?</string>
+    <string name="no_threads_yet">Как только вы начнёте новый разговор, он появится здесь</string>
+
+    <!-- New Thread Screen -->
+    <string name="create">Создать</string>
+    <string name="enter_role_name">Введите название роли</string>
+    <string name="name_already_exists">Это имя уже есть</string>
+    <string name="name_empty">Имя не может быть пустым</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">Настройки</string>
+    <string name="contact_us">Связаться с нами</string>
+    <string name="keep_last_attachment">Сохранять последнее вложение</string>
+    <string name="streaming_mode">Потоковый режим</string>
+    <string name="streaming_mode_subtitle">Показывать ответ по мере генерации</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="terms_and_conditions">Условия использования</string>
+    <string name="version_format">Версия %1$s (%2$d)</string>
+
+    <!-- Acknowledgements -->
+    <string name="acknowledgements">Благодарности</string>
+    <string name="acknowledgements_intro">RolesWitch построен на открытых разработках других людей. Спасибо всем, кто перечислен ниже.</string>
+    <string name="ack_license_text">Лицензия</string>
+    <string name="intelligence">Интеллект</string>
+    <string name="not_configured">Не настроено</string>
+    <string name="optional">Необязательно</string>
+    <string name="enable_vision">Распознавание изображений</string>
+    <string name="vision_subtitle">Убедитесь, что модель поддерживает изображения</string>
+    <string name="messages_to_process">Обрабатывать сообщений</string>
+    <string name="unlimited">Все</string>
+    <string name="language">Язык</string>
+    <string name="voice">Голос</string>
+    <string name="system_default">По умолчанию</string>
+    <!-- External (OpenAI) speech engine: the voice text field is free-form (server-side
+         voice id), so it shows an example rather than a picker. -->
+    <string name="external_voice_placeholder">например, alloy, echo, onyx</string>
+    <!-- The two failure states of external speech, deliberately distinct: one means the
+         call was made and failed, the other means there is no server to call at all. -->
+    <string name="tts_server_error">Ошибка сервера</string>
+    <string name="tts_voice_not_configured">Голос не настроен</string>
+    <string name="select_voice">Выбрать голос</string>
+    <string name="no_voices_available">Этот движок не предлагает отдельных голосов для этого языка. Будет использован голос по умолчанию.</string>
+    <string name="speech_output">Синтез речи</string>
+    <string name="speech_input">Распознавание речи</string>
+    <string name="recognition_engine">Движок распознавания</string>
+    <string name="speech_engine">Движок синтеза</string>
+    <string name="engine_app">Автоматически</string>
+    <string name="engine_system">Системный</string>
+    <string name="engine_external">Внешний (OpenAI)</string>
+    <string name="recognition_offline">VOSK (Офлайн)</string>
+    <string name="recognition_offline_desc">Слушает непрерывно, обрабатывается на устройстве</string>
+    <string name="recognition_system">Системное распознавание</string>
+    <string name="recognition_system_desc">Нажмите, чтобы говорить, может использовать интернет</string>
+    <string name="miscellaneous">Другие</string>
+
+    <string name="enable_time_embedding">Делиться датой и временем</string>
+    <string name="vosk_not_available_desc">Офлайн распознавание речи VOSK пока недоступно для вашего языка.</string>
+    <string name="vosk_download_required_desc">Модель VOSK для вашего языка не встроена. её нужно скачать из интернета (%1$d МБ). Продолжить?</string>
+    <string name="download">Скачать</string>
+    <string name="downloading_vosk_model">Скачивание модели VOSK…</string>
+    <string name="verifying_download">Проверка…</string>
+    <string name="extracting_model">Распаковка…</string>
+    <string name="vosk_ready">Модель VOSK готова</string>
+    <string name="vosk_download_corrupted_desc">Скачанный файл повреждён. Пожалуйста, попробуйте снова.</string>
+    <string name="vosk_download_failed">Не удалось скачать</string>
+    <string name="allow_interruptions">Разрешить прерывания</string>
+    <string name="allow_interruptions_subtitle">Требуется VOSK и наушники</string>
+    <string name="open_system_settings">Открыть настройки системы</string>
+    <string name="open_system_settings_subtitle">Выбор движка, голоса и скорости</string>
+    <string name="reset_settings">Сбросить настройки</string>
+    <string name="reset_confirm">Это удалит все записи и сбросит приложение. Вы вернетесь на экран приветствия.</string>
+    <string name="intelligence_not_configured_message">Модель не настроена. Перейдите в настройки, чтобы настроить ИИ-провайдера.</string>
+    <string name="go_to_settings">Перейти в настройки</string>
+    <string name="thinking_exit_message">Модель думает, покинув этот экран вы отмените запрос</string>
+
+    <!-- Onboarding -->
+    <string name="hello_roles_witch">Привет, это Roles Witch</string>
+    <string name="your_voice_assistant">Ваш голосовой ассистент</string>
+    <string name="on_device_ai">Работает офлайн</string>
+    <string name="on_device_ai_desc">Модель работает прямо на вашем устройстве.</string>
+    <string name="before_we_begin">Прежде чем начать</string>
+    <string name="respects_your_privacy">Roles Witch уважает вашу приватность</string>
+    <string name="no_signup">Без регистрации</string>
+    <string name="no_signup_desc">Ни аккаунта, ни личных данных — полностью анонимно.</string>
+    <string name="no_tracking">Без аналитики</string>
+    <string name="no_tracking_desc">Приложение не собирает данные.</string>
+    <string name="local_processing">Движок на ваш выбор</string>
+    <string name="local_processing_desc">Движок на устройстве или ваш собственный API.</string>
+    <string name="voice_conversations">Голосовое общение</string>
+    <string name="voice_conversations_desc">Общайтесь с ИИ голосом.</string>
+    <string name="multiple_roles">Множество ролей</string>
+    <string name="multiple_roles_desc">Переключение ролей на лету.</string>
+    <string name="configure_connection_desc">Подключите внешний AI-сервис</string>
+    <string name="server">Сервер</string>
+    <string name="data_sharing">Передача данных</string>
+    <string name="data_sharing_destination">настроенный вами адрес</string>
+    <string name="data_sharing_notice">В облачном режиме приложение может передавать ваши сообщения, прикреплённые изображения, расшифровки речи, отметки времени и базовые сведения о клиенте на %1$s. Roles Witch не контролирует, как %1$s хранит, обрабатывает и передаёт эти данные — действует политика конфиденциальности этой стороны.</string>
+    <string name="data_sharing_alert">Подключение к %1$s может передать ваши сообщения, прикреплённые изображения, расшифровки речи и отметки времени на этот удалённый сервер.\n\nRoles Witch не контролирует, как %1$s хранит и использует ваши данные — действует политика конфиденциальности этой стороны.\n\nНажмите «Понятно», чтобы дать явное согласие.</string>
+    <string name="data_sharing_accept">Понятно</string>
+    <string name="read_privacy_policy">Политика конфиденциальности</string>
+    <string name="api_url">API URL</string>
+    <string name="api_url_placeholder">http://192.168.0.100:1234/v1</string>
+    <string name="api_token">API Токен</string>
+    <string name="your_token">Ваш токен</string>
+    <string name="model">Модель</string>
+    <string name="select_model">Выбрать модель</string>
+    <string name="search_models">Поиск моделей</string>
+    <string name="hide_search">Скрыть поиск</string>
+    <string name="no_models_match">Нет моделей по запросу «%1$s»</string>
+    <string name="finish_setup">Завершить</string>
+
+    <!-- Voice -->
+    <string name="offline_recognition_unavailable_desc">Распознавание речи на устройстве недоступно. Загрузите офлайн языковой пакет в настройках устройства</string>
+    <string name="process_on_device">Обрабатывать на устройстве</string>
+
+    <!-- Validation -->
+    <string name="loading_models">Загрузка моделей&#8230;</string>
+    <string name="testing_voice">Проверка голоса&#8230;</string>
+    <string name="invalid_url_format">Неверный формат URL</string>
+    <string name="cannot_reach_server">Сервер недоступен</string>
+    <string name="local_network_permission_alert">Может потребоваться разрешение на доступ к локальной сети.</string>
+
+    <!-- Tools (MCP) -->
+    <string name="tools">Инструменты</string>
+    <string name="tools_manage">Управление инструментами</string>
+    <string name="tools_none_configured">Нет</string>
+    <plurals name="tools_configured_count">
+        <item quantity="one">%d настроен</item>
+        <item quantity="few">%d настроено</item>
+        <item quantity="many">%d настроено</item>
+        <item quantity="other">%d настроено</item>
+    </plurals>
+    <string name="thread_tools_empty">Инструментов пока нет. Добавьте их в «Настройки → Инструменты», затем включите здесь.</string>
+    <string name="tools_description">Список MCP-серверов, которые может вызывать ассистент. Добавление сервера здесь не включает его — включите его для чата в настройках модели этого чата. Всё работает на этом устройстве: адрес и токен не покидают его, кроме обращения к указанному вами серверу.</string>
+    <string name="tools_add">Добавить инструмент</string>
+    <string name="tools_edit">Изменить инструмент</string>
+    <string name="tools_name">Название</string>
+    <string name="tools_name_placeholder">Мой сервер инструментов</string>
+    <string name="tools_endpoint">Адрес</string>
+    <string name="tools_endpoint_placeholder">https://example.com/mcp</string>
+    <string name="tools_token">Токен</string>
+    <string name="tools_checking">Проверка подключения…</string>
+    <string name="tools_test_failed">Ошибка:</string>
+    <string name="tools_test_empty">Подключение есть, но сервер не предлагает инструментов.</string>
+    <string name="tools_delete_confirm">Удалить «%1$s»?</string>
+
+    <!-- Reasoning (reasoning_effort) -->
+    <string name="reasoning_mode">Размышление</string>
+    <string name="reasoning_auto">Автоматически</string>
+    <string name="reasoning_none">Без размышления</string>
+    <string name="reasoning_low">Низкое</string>
+    <string name="reasoning_medium">Среднее</string>
+    <string name="reasoning_high">Высокое</string>
+
+    <!-- Advanced -->
+    <string name="advanced">Расширенные</string>
+    <string name="advanced_subtitle">Такие как topP и другие</string>
+    <string name="advanced_temperature">Temperature</string>
+    <string name="advanced_temperature_hint">Контролирует случайность. Диапазон: 0.0 – 2.0.</string>
+    <string name="advanced_top_p">Top P</string>
+    <string name="advanced_top_p_hint">Сэмплирование ядра. Диапазон: 0.0 – 1.0.</string>
+    <string name="advanced_n">N</string>
+    <string name="advanced_n_hint">Количество вариантов ответа. Целое положительное число.</string>
+    <string name="advanced_max_completion_tokens">Макс. токенов в ответе</string>
+    <string name="advanced_max_completion_tokens_hint">Максимальное количество токенов в ответе. Целое положительное число.</string>
+    <string name="advanced_presence_penalty">Штраф за присутствие</string>
+    <string name="advanced_presence_penalty_hint">Штрафует уже появившиеся токены. Диапазон: -2.0 – 2.0.</string>
+    <string name="advanced_frequency_penalty">Штраф за частоту</string>
+    <string name="advanced_frequency_penalty_hint">Штрафует частые токены. Диапазон: -2.0 – 2.0.</string>
+    <string name="advanced_invalid_number">Неверный формат числа</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="scanning">Сканирование…</string>
+
+    <!-- Bubble -->
+    <string name="favorite">Избранное</string>
+    <string name="photo">Фото</string>
+    <string name="full_size_photo">Полноразмерное фото</string>
+
+    <!-- Thread profile -->
+    <string name="profile">Профиль</string>
+    <string name="remove_avatar">Удалить аватар</string>
+    <string name="change_image">Изменить фото</string>
+    <string name="discard_changes">Отменить изменения?</string>
+    <string name="discard">Отменить</string>
+
+    <!-- Per-thread model settings -->
+    <string name="configure_model">Настроить модель</string>
+    <string name="model_settings">Настройки модели</string>
+    <string name="use_custom_settings">Свои настройки</string>
+    <string name="use_custom_settings_subtitle">Переопределить общие настройки для этого чата</string>
+
+    <!-- Inference engine -->
+    <string name="retry">Повторить</string>
+    <string name="engine">Движок</string>
+    <string name="engine_remote">Внешний</string>
+    <string name="engine_remote_desc">Использовать OpenAI-совместимый API. Нужны интернет и ключ.</string>
+    <string name="engine_device">На устройстве</string>
+    <string name="engine_device_desc">Запускать скачанную модель на этом устройстве.</string>
+    <string name="model_supports_images">Поддерживает изображения</string>
+
+    <!-- On-device models -->
+    <string name="litert_models_title">Модель на устройстве</string>
+    <string name="litert_models_footer">Модели работают полностью на этом устройстве — на сервер ничего не отправляется. Используя модель, вы соглашаетесь с её лицензией; условия — на huggingface.co.</string>
+    <string name="litert_needs_ram">Требуется %1$d ГБ ОЗУ</string>
+    <string name="litert_selected">Выбрана</string>
+    <string name="unit_gb">ГБ</string>
+    <string name="unit_mb">МБ</string>
+    <string name="unit_kb">КБ</string>
+    <string name="litert_use">Выбрать</string>
+    <string name="litert_download">Скачать</string>
+    <string name="litert_add_from_url">Скачать по ссылке</string>
+    <string name="litert_add_from_url_message">Вставьте ссылку на репозиторий HuggingFace с моделью LiteRT (.litertlm).</string>
+    <string name="litert_verifying">Проверка загрузки…</string>
+    <string name="litert_download_progress">%1$d%% · %2$s · осталось %3$s</string>
+    <string name="litert_download_failed">Не удалось скачать: %1$s</string>
+    <string name="litert_download_corrupted">Загрузка повреждена и удалена: %1$s</string>
+    <string name="litert_installed">Установлена</string>
+    <string name="litert_not_installed">Не установлена</string>
+    <string name="litert_download_required_title">Требуется загрузка</string>
+    <string name="litert_download_required_desc">«%1$s» весит около %2$s и скачивается из интернета. Не закрывайте этот экран до завершения.</string>
+    <string name="litert_downloading_model">Загрузка %1$s…</string>
+    <string name="litert_download_failed_title">Не удалось скачать</string>
+    <string name="litert_low_memory_message">Эта модель рассчитана на устройства с объёмом памяти от %1$d ГБ, а здесь около %2$d ГБ. Она может работать медленно или не загрузиться.</string>
+    <string name="litert_download_anyway">Всё равно скачать</string>
+    <string name="litert_delete_message">Удалить %1$s с устройства? Позже её можно скачать снова.</string>
+
+    <string name="huggingface_token">Токен HuggingFace</string>
+    <string name="litert_token_required_message">%1$s размещена в закрытом репозитории. Добавьте токен доступа HuggingFace в «Настройки → Интеллект» и убедитесь, что ваш аккаунт принял условия модели на huggingface.co.</string>
+    <string name="litert_use_gpu">Использовать GPU</string>
+    <string name="litert_use_gpu_subtitle">Быстрее там, где работает, но на некоторых телефонах модель не запускается на GPU. Отключите, если загрузка не удаётся.</string>
+    <string name="litert_enable_thinking">Размышления</string>
+
+    <!-- On-device advanced parameters -->
+    <string name="litert_max_tokens">Макс. токенов</string>
+    <string name="litert_max_tokens_hint">Размер контекста. Большие значения требуют больше памяти.</string>
+    <string name="litert_max_tokens_hint_bounded">Размер контекста, не более %1$d. Большие значения требуют больше памяти.</string>
+    <string name="litert_top_k">Top K</string>
+    <string name="litert_top_k_hint">Из скольких вариантов токенов выбирать.</string>
+    <string name="litert_top_p_hint">Порог nucleus-сэмплирования, 0–1.</string>
+    <string name="litert_temperature_hint">Выше — креативнее, ниже — точнее.</string>
+
+    <!-- Model warm-up -->
+    <string name="litert_preparing_title">Подготовка модели</string>
+    <string name="litert_preparing_message">Загрузка %1$s на это устройство. Первый раз занимает больше всего времени.</string>
+    <string name="litert_prepare_failed">Не удалось загрузить модель: %1$s</string>
+</resources>

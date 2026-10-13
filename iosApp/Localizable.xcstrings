@@ -1,0 +1,2584 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "%@ %@/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@/s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@/s"
+          }
+        }
+      }
+    },
+    "%@ has no model configured. Open it in RolesWitch and pick one." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У «%@» не настроена модель. Откройте его в RolesWitch и выберите модель."
+          }
+        }
+      }
+    },
+    "%@ is about %@ and downloads from the internet. Keep this screen open until it finishes." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ is about %2$@ and downloads from the internet. Keep this screen open until it finishes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» весит около %@ и скачивается из интернета. Не закрывайте этот экран до завершения."
+          }
+        }
+      }
+    },
+    "%@ is hosted in a gated repository. Add a HuggingFace access token in Settings → Intelligence, and make sure your account has accepted the model's terms on huggingface.co." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ размещена в закрытом репозитории. Добавьте токен доступа HuggingFace в «Настройки → Интеллект» и убедитесь, что ваш аккаунт принял условия модели на huggingface.co."
+          }
+        }
+      }
+    },
+    "%@ is not downloaded yet. Open RolesWitch and download it first." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» ещё не скачана. Откройте RolesWitch и скачайте её сначала."
+          }
+        }
+      }
+    },
+    "%lld %@/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@/s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld %2$@/s"
+          }
+        }
+      }
+    },
+    "%lld configured" : {
+      "localizations" : {
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld настроено"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld настроено"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld настроен"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld настроено"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld selected" : {
+      "localizations" : {
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld выбрано"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld выбрано"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld выбран"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld выбрано"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld%% · %@ · %@ left" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld%% · %2$@ · %3$@ left"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld%% · %2$@ · осталось %3$@"
+          }
+        }
+      }
+    },
+    "A registry of MCP servers the assistant can call. Adding one here does not switch it on — enable it for a chat in that chat’s model settings. Everything runs on this device: the endpoint and token never leave it except to reach the server you name." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список MCP-серверов, которые может вызывать ассистент. Добавление сервера здесь не включает его — включите его для чата в настройках модели этого чата. Всё работает на этом устройстве: адрес и токен не покидают его, кроме обращения к указанному вами серверу."
+          }
+        }
+      }
+    },
+    "AI may be inaccurate" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ИИ может ошибаться"
+          }
+        }
+      }
+    },
+    "API Token" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Токен"
+          }
+        }
+      }
+    },
+    "API URL" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API URL"
+          }
+        }
+      }
+    },
+    "Acknowledgements" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Благодарности"
+          }
+        }
+      }
+    },
+    "Add tool" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить инструмент"
+          }
+        }
+      }
+    },
+    "Advanced" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расширенные"
+          }
+        }
+      }
+    },
+    "Allow interruptions" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разрешить прерывания"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete this thread and all its messages?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы уверены, что хотите удалить эту ветку и все её сообщения?"
+          }
+        }
+      }
+    },
+    "Ask ${thread}: ${prompt}" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спросить ${thread}: ${prompt}"
+          }
+        }
+      }
+    },
+    "Ask AI" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спросить ИИ"
+          }
+        }
+      }
+    },
+    "Ask AI (Pipeline)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спросить ИИ (Pipeline)"
+          }
+        }
+      }
+    },
+    "Attach" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прикрепить"
+          }
+        }
+      }
+    },
+    "Auto" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматически"
+          }
+        }
+      }
+    },
+    "Back" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Назад"
+          }
+        }
+      }
+    },
+    "Before We Begin" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прежде чем начать"
+          }
+        }
+      }
+    },
+    "Camera access required" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется доступ к камере"
+          }
+        }
+      }
+    },
+    "Camera permission is required for video calls. You can enable it in app settings." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для видеозвонков требуется разрешение на камеру. Вы можете включить его в настройках приложения."
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "Cancel edit" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить редактирование"
+          }
+        }
+      }
+    },
+    "Change image" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменить фото"
+          }
+        }
+      }
+    },
+    "Checking connection…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка подключения…"
+          }
+        }
+      }
+    },
+    "Clear history" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить историю"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
+    "Close video" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть видео"
+          }
+        }
+      }
+    },
+    "Configure an API URL first." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сначала укажите API URL."
+          }
+        }
+      }
+    },
+    "Configure model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить модель"
+          }
+        }
+      }
+    },
+    "Connected, but the server offers no tools." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключение есть, но сервер не предлагает инструментов."
+          }
+        }
+      }
+    },
+    "Connecting to %@ may share your messages, attached images, voice transcriptions and timestamps with that remote server.\n\nRoles Witch does not control how %@ stores or uses your data — their own privacy policy applies.\n\nTap I Understand to give your explicit permission." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Connecting to %1$@ may share your messages, attached images, voice transcriptions and timestamps with that remote server.\n\nRoles Witch does not control how %2$@ stores or uses your data — their own privacy policy applies.\n\nTap I Understand to give your explicit permission."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключение к %1$@ может передать ваши сообщения, прикреплённые изображения, расшифровки речи и отметки времени на этот удалённый сервер.\n\nRoles Witch не контролирует, как %2$@ хранит и использует ваши данные — действует политика конфиденциальности этой стороны.\n\nНажмите «Понятно», чтобы дать явное согласие."
+          }
+        }
+      }
+    },
+    "Contact Us" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Связаться с нами"
+          }
+        }
+      }
+    },
+    "Controls randomness. 0.0 is deterministic." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контролирует случайность. 0.0 — детерминированный результат."
+          }
+        }
+      }
+    },
+    "Controls randomness. Range: 0.0 – 2.0." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Контролирует случайность. Диапазон: 0.0 – 2.0."
+          }
+        }
+      }
+    },
+    "Conversation" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разговор"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Копировать"
+          }
+        }
+      }
+    },
+    "Could not load the on-device model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось загрузить модель на устройстве"
+          }
+        }
+      }
+    },
+    "Data Sharing" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Передача данных"
+          }
+        }
+      }
+    },
+    "Default" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По умолчанию"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить"
+          }
+        }
+      }
+    },
+    "Delete all messages in this thread?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить все сообщения в этой ветке?"
+          }
+        }
+      }
+    },
+    "Delete this tool?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить этот инструмент?"
+          }
+        }
+      }
+    },
+    "Delete?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить?"
+          }
+        }
+      }
+    },
+    "Discard" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить"
+          }
+        }
+      }
+    },
+    "Discard changes?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить изменения?"
+          }
+        }
+      }
+    },
+    "Document" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Документ"
+          }
+        }
+      }
+    },
+    "Download" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скачать"
+          }
+        }
+      }
+    },
+    "Download failed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось скачать"
+          }
+        }
+      }
+    },
+    "Download from URL" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скачать по ссылке"
+          }
+        }
+      }
+    },
+    "Download required" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется загрузка"
+          }
+        }
+      }
+    },
+    "Downloading %@…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка %@…"
+          }
+        }
+      }
+    },
+    "ENHANCED" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ENHANCED"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Редактировать"
+          }
+        }
+      }
+    },
+    "Edit tool" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменить инструмент"
+          }
+        }
+      }
+    },
+    "Enable Vision" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Распознавание изображений"
+          }
+        }
+      }
+    },
+    "Enable Vision in Settings to attach images." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включите распознавание изображений в настройках, чтобы прикреплять изображения."
+          }
+        }
+      }
+    },
+    "End call" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершить вызов"
+          }
+        }
+      }
+    },
+    "Engine" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Движок"
+          }
+        }
+      }
+    },
+    "Enhanced and premium voices are installed in the system settings: Accessibility > Spoken Content > Voices" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Улучшённые и премиум-голоса устанавливаются в системных настройках: Универсальный доступ > Чтение вслух > Голоса"
+          }
+        }
+      }
+    },
+    "Enhanced voice for the language, else system default" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Улучшенный голос для языка, иначе — системный по умолчанию."
+          }
+        }
+      }
+    },
+    "Enter the name of the role" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите название роли"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ошибка"
+          }
+        }
+      }
+    },
+    "External (OpenAI)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний (OpenAI)"
+          }
+        }
+      }
+    },
+    "Failed:" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ошибка:"
+          }
+        }
+      }
+    },
+    "Faster where it works, but some phones cannot run the model on the GPU. Turn this off if it fails to load." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрее там, где работает, но на некоторых телефонах модель не запускается на GPU. Отключите, если загрузка не удаётся."
+          }
+        }
+      }
+    },
+    "Favorites" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Избранное"
+          }
+        }
+      }
+    },
+    "Finish Setup" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершить"
+          }
+        }
+      }
+    },
+    "For video calls turn on the microphone" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для видеозвонков включите микрофон"
+          }
+        }
+      }
+    },
+    "Frequency Penalty" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Штраф за частоту"
+          }
+        }
+      }
+    },
+    "Full size photo" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полноразмерное фото"
+          }
+        }
+      }
+    },
+    "GB" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ГБ"
+          }
+        }
+      }
+    },
+    "Go to Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейти в настройки"
+          }
+        }
+      }
+    },
+    "Hello, it’s Roles Witch" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привет, это Roles Witch"
+          }
+        }
+      }
+    },
+    "High" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Высокое"
+          }
+        }
+      }
+    },
+    "HuggingFace token" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Токен HuggingFace"
+          }
+        }
+      }
+    },
+    "I Understand" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Понятно"
+          }
+        }
+      }
+    },
+    "In Cloud mode the app may transmit your messages, attached images, voice transcriptions, timestamps and basic client metadata to %@. Roles Witch does not control how %@ stores, processes or shares this data — their own privacy policy applies." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "In Cloud mode the app may transmit your messages, attached images, voice transcriptions, timestamps and basic client metadata to %1$@. Roles Witch does not control how %2$@ stores, processes or shares this data — their own privacy policy applies."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В облачном режиме приложение может передавать ваши сообщения, прикреплённые изображения, расшифровки речи, отметки времени и базовые сведения о клиенте на %1$@. Roles Witch не контролирует, как %2$@ хранит, обрабатывает и передаёт эти данные — действует политика конфиденциальности этой стороны."
+          }
+        }
+      }
+    },
+    "Installed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установлена"
+          }
+        }
+      }
+    },
+    "Intelligence" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Интеллект"
+          }
+        }
+      }
+    },
+    "Invalid URL format" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неверный формат URL"
+          }
+        }
+      }
+    },
+    "Invalid number format" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неверный формат числа"
+          }
+        }
+      }
+    },
+    "KB" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "КБ"
+          }
+        }
+      }
+    },
+    "Keep last attachment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранять последнее вложение"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Язык"
+          }
+        }
+      }
+    },
+    "License" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лицензия"
+          }
+        }
+      }
+    },
+    "Link" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ссылка"
+          }
+        }
+      }
+    },
+    "Listening…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слушаю…"
+          }
+        }
+      }
+    },
+    "Loading %@…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка %@…"
+          }
+        }
+      }
+    },
+    "Loading models…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка моделей…"
+          }
+        }
+      }
+    },
+    "Longest reply the model may produce. Must be a positive integer." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максимальная длина ответа модели. Должна быть целым положительным числом."
+          }
+        }
+      }
+    },
+    "Low" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Низкое"
+          }
+        }
+      }
+    },
+    "MB" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "МБ"
+          }
+        }
+      }
+    },
+    "Make sure the model has vision capability" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убедитесь, что модель поддерживает изображения"
+          }
+        }
+      }
+    },
+    "Manage tools" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Управление инструментами"
+          }
+        }
+      }
+    },
+    "Mark favorite" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В избранное"
+          }
+        }
+      }
+    },
+    "Max Completion Tokens" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс. токенов в ответе"
+          }
+        }
+      }
+    },
+    "Max Tokens" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс. токенов"
+          }
+        }
+      }
+    },
+    "Maximum tokens in response. Must be a positive integer." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Максимальное количество токенов в ответе. Целое положительное число."
+          }
+        }
+      }
+    },
+    "Medium" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среднее"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщение"
+          }
+        }
+      }
+    },
+    "Messages" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщения"
+          }
+        }
+      }
+    },
+    "Messages to process" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обрабатывать сообщений"
+          }
+        }
+      }
+    },
+    "Microphone and speech recognition permission is required to make calls. You can enable them in app settings." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для звонков требуется разрешение на микрофон и распознавание речи. Вы можете включить их в настройках приложения."
+          }
+        }
+      }
+    },
+    "Miscellaneous" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другие"
+          }
+        }
+      }
+    },
+    "Model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель"
+          }
+        }
+      }
+    },
+    "Model is not configured" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель не настроена"
+          }
+        }
+      }
+    },
+    "Model is not configured. Go to settings to set up your AI provider." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель не настроена. Перейдите в настройки, чтобы настроить ИИ-провайдера."
+          }
+        }
+      }
+    },
+    "Model is thinking, leaving this screen will cancel request" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель думает, покинув этот экран вы отмените запрос"
+          }
+        }
+      }
+    },
+    "Model settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки модели"
+          }
+        }
+      }
+    },
+    "Models run entirely on this device — nothing is sent to a server. By using a model you agree to its license; see huggingface.co for its terms." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модели работают полностью на этом устройстве — на сервер ничего не отправляется. Используя модель, вы соглашаетесь с её лицензией; условия — на huggingface.co."
+          }
+        }
+      }
+    },
+    "Multiple Roles" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Множество ролей"
+          }
+        }
+      }
+    },
+    "Multiple attachments" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Несколько вложений"
+          }
+        }
+      }
+    },
+    "Mute" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выключить микрофон"
+          }
+        }
+      }
+    },
+    "N" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "N"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название"
+          }
+        }
+      }
+    },
+    "Name cannot be empty" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Имя не может быть пустым"
+          }
+        }
+      }
+    },
+    "Natural voice interactions with AI." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Естественное голосовое общение с ИИ."
+          }
+        }
+      }
+    },
+    "New Conversation" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый разговор"
+          }
+        }
+      }
+    },
+    "Next" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Далее"
+          }
+        }
+      }
+    },
+    "No" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет"
+          }
+        }
+      }
+    },
+    "No Analytics or Tracking" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без аналитики"
+          }
+        }
+      }
+    },
+    "No Sign-Up Required" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без регистрации"
+          }
+        }
+      }
+    },
+    "No account, no personal data. Fully anonymous." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни аккаунта, ни личных данных — полностью анонимно."
+          }
+        }
+      }
+    },
+    "No favorites yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет избранных сообщений."
+          }
+        }
+      }
+    },
+    "No matching models" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет подходящих моделей"
+          }
+        }
+      }
+    },
+    "No messages" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет сообщений"
+          }
+        }
+      }
+    },
+    "No models found." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модели не найдены."
+          }
+        }
+      }
+    },
+    "No on-device model is selected." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель на устройстве не выбрана."
+          }
+        }
+      }
+    },
+    "No tools yet. Add them in Settings → Tools, then turn them on here." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Инструментов пока нет. Добавьте их в «Настройки → Инструменты», затем включите здесь."
+          }
+        }
+      }
+    },
+    "No voices installed for this language" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для этого языка не установлены голоса"
+          }
+        }
+      }
+    },
+    "None" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет"
+          }
+        }
+      }
+    },
+    "Not configured" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не настроено"
+          }
+        }
+      }
+    },
+    "Not enough free memory to load %@ in the background. Open RolesWitch and run this again with the app on screen." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостаточно свободной памяти, чтобы загрузить %@ в фоновом режиме. Откройте RolesWitch и повторите с открытым приложением."
+          }
+        }
+      }
+    },
+    "Not enough free space — about %@ more is needed." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недостаточно свободного места — нужно ещё около %@."
+          }
+        }
+      }
+    },
+    "Not installed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не установлена"
+          }
+        }
+      }
+    },
+    "Nucleus sampling. Range: 0.0 – 1.0." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сэмплирование ядра. Диапазон: 0.0 – 1.0."
+          }
+        }
+      }
+    },
+    "Number of choices. Must be a positive integer." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Количество вариантов ответа. Целое положительное число."
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ОК"
+          }
+        }
+      }
+    },
+    "On device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На устройстве"
+          }
+        }
+      }
+    },
+    "On-device model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель на устройстве"
+          }
+        }
+      }
+    },
+    "Once you start a new conversation, you'll see it listed here" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как только вы начнёте новый разговор, он появится здесь"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки"
+          }
+        }
+      }
+    },
+    "Optional" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Необязательно"
+          }
+        }
+      }
+    },
+    "Other components" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другие компоненты"
+          }
+        }
+      }
+    },
+    "Override the app-wide settings for this chat" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переопределить общие настройки для этого чата"
+          }
+        }
+      }
+    },
+    "Paste a link to a HuggingFace repository holding a LiteRT (.litertlm) model." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вставьте ссылку на репозиторий HuggingFace с моделью LiteRT (.litertlm)."
+          }
+        }
+      }
+    },
+    "Penalizes frequent tokens. Range: -2.0 – 2.0." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Штрафует частые токены. Диапазон: -2.0 – 2.0."
+          }
+        }
+      }
+    },
+    "Penalizes tokens that already appeared. Range: -2.0 – 2.0." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Штрафует уже появившиеся токены. Диапазон: -2.0 – 2.0."
+          }
+        }
+      }
+    },
+    "Permission denied" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ запрещён"
+          }
+        }
+      }
+    },
+    "Permission required" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется разрешение"
+          }
+        }
+      }
+    },
+    "Photo" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фото"
+          }
+        }
+      }
+    },
+    "Photo Library" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать из галереи"
+          }
+        }
+      }
+    },
+    "Presence Penalty" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Штраф за присутствие"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика конфиденциальности"
+          }
+        }
+      }
+    },
+    "Process on device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обрабатывать на устройстве"
+          }
+        }
+      }
+    },
+    "Profile" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профиль"
+          }
+        }
+      }
+    },
+    "Prompt" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Промпт"
+          }
+        }
+      }
+    },
+    "Read Privacy Policy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика конфиденциальности"
+          }
+        }
+      }
+    },
+    "Reasoning" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рассуждения"
+          }
+        }
+      }
+    },
+    "Remote" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний"
+          }
+        }
+      }
+    },
+    "Remove avatar" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить аватар"
+          }
+        }
+      }
+    },
+    "Request was cancelled" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запрос был отменён"
+          }
+        }
+      }
+    },
+    "Requires headphones" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуются наушники"
+          }
+        }
+      }
+    },
+    "Reset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить"
+          }
+        }
+      }
+    },
+    "Reset settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить настройки"
+          }
+        }
+      }
+    },
+    "Reset settings?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбросить настройки?"
+          }
+        }
+      }
+    },
+    "Restores the selected model's own recommended values." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстанавливает рекомендованные значения выбранной модели."
+          }
+        }
+      }
+    },
+    "Retry" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "Roles Witch respects your privacy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roles Witch уважает вашу приватность"
+          }
+        }
+      }
+    },
+    "RolesWitch is built on open-source work by other people. Thank you to everyone below." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RolesWitch построен на открытых разработках других людей. Спасибо всем, кто перечислен ниже."
+          }
+        }
+      }
+    },
+    "Run a downloaded model on this device. Works offline; nothing is sent anywhere." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запускать скачанную модель на этом устройстве."
+          }
+        }
+      }
+    },
+    "Run a model fully on this device." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель работает прямо на вашем устройстве."
+          }
+        }
+      }
+    },
+    "Run a model on device, or connect your own API. Nothing goes anywhere else." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель на устройстве или ваш собственный API — ничего не отправляется наружу."
+          }
+        }
+      }
+    },
+    "Sample from the K likeliest tokens. Must be a positive integer." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбирать из K самых вероятных токенов. Целое положительное число."
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "Search" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
+          }
+        }
+      }
+    },
+    "Search models" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск моделей"
+          }
+        }
+      }
+    },
+    "Search voices" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск голосов"
+          }
+        }
+      }
+    },
+    "Select" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать"
+          }
+        }
+      }
+    },
+    "Select Model" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать модель"
+          }
+        }
+      }
+    },
+    "Select Voice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать голос"
+          }
+        }
+      }
+    },
+    "Send" : {
+      "comment" : "A button that sends a message.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправить"
+          }
+        }
+      }
+    },
+    "Send a message to a conversation and pass the reply to the next action, without announcing it. The conversation's own settings decide which model answers and which tools it may use." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправить сообщение в разговор и передать ответ следующему действию, не объявляя его. Настройки самого разговора решают, какая модель отвечает и какие инструменты ей доступны."
+          }
+        }
+      }
+    },
+    "Send a message to a conversation and return the reply. The conversation's own settings decide which model answers and which tools it may use." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправить сообщение в разговор и вернуть ответ. Настройки самого разговора решают, какая модель отвечает и какие инструменты ей доступны."
+          }
+        }
+      }
+    },
+    "Server" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сервер"
+          }
+        }
+      }
+    },
+    "Server error" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ошибка сервера"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "Share date and time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Делиться датой и временем"
+          }
+        }
+      }
+    },
+    "Share..." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться..."
+          }
+        }
+      }
+    },
+    "Show favorites" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать избранные"
+          }
+        }
+      }
+    },
+    "Show reasoning" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать рассуждения"
+          }
+        }
+      }
+    },
+    "Show replies as they're generated" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать ответ по мере генерации"
+          }
+        }
+      }
+    },
+    "Some models does not support multiple attachments" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некоторые модели не поддерживают несколько вложений"
+          }
+        }
+      }
+    },
+    "Speech engine" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Движок синтеза"
+          }
+        }
+      }
+    },
+    "Speech input" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Распознавание речи"
+          }
+        }
+      }
+    },
+    "Speech output" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синтез речи"
+          }
+        }
+      }
+    },
+    "Start call" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать вызов"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "comment" : "A button that stops a streaming response.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стоп"
+          }
+        }
+      }
+    },
+    "Streaming mode" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Потоковый режим"
+          }
+        }
+      }
+    },
+    "Such as topP and others" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Такие как topP и другие"
+          }
+        }
+      }
+    },
+    "Switch roles on the fly." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключение ролей на лету."
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Системный"
+          }
+        }
+      }
+    },
+    "Take Photo" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделать фото"
+          }
+        }
+      }
+    },
+    "Temperature" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperature"
+          }
+        }
+      }
+    },
+    "Terms and Conditions" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Условия использования"
+          }
+        }
+      }
+    },
+    "Testing voice…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверка голоса…"
+          }
+        }
+      }
+    },
+    "That conversation no longer exists." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этого разговора больше нет."
+          }
+        }
+      }
+    },
+    "The first load of a model takes a moment." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Первый запуск модели занимает некоторое время."
+          }
+        }
+      }
+    },
+    "The model returned nothing." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель ничего не вернула."
+          }
+        }
+      }
+    },
+    "The request was cancelled while the app was in the background. Would you like to retry?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запрос был отменён, пока приложение было в фоновом режиме. Повторить?"
+          }
+        }
+      }
+    },
+    "Thinking" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Размышление"
+          }
+        }
+      }
+    },
+    "Thinking…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Думаю…"
+          }
+        }
+      }
+    },
+    "This name already exists" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это имя уже есть"
+          }
+        }
+      }
+    },
+    "This will delete all records and reset app. You will be returned to onboarding screen." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это удалит все записи и сбросит приложение. Вы вернетесь на экран приветствия."
+          }
+        }
+      }
+    },
+    "Tools" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Инструменты"
+          }
+        }
+      }
+    },
+    "Top K" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top K"
+          }
+        }
+      }
+    },
+    "Top P" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top P"
+          }
+        }
+      }
+    },
+    "Type a message" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите сообщение…"
+          }
+        }
+      }
+    },
+    "Unlimited" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все"
+          }
+        }
+      }
+    },
+    "Unmark favorite" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из избранного"
+          }
+        }
+      }
+    },
+    "Use GPU for inference" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать GPU"
+          }
+        }
+      }
+    },
+    "Use an OpenAI-compatible API. Requires a connection and a key." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать OpenAI-совместимый API. Нужны интернет и ключ."
+          }
+        }
+      }
+    },
+    "Use custom settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свои настройки"
+          }
+        }
+      }
+    },
+    "Using a tool…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вызываю инструмент…"
+          }
+        }
+      }
+    },
+    "Version %@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version %1$@ (%2$@)"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия %1$@ (%2$@)"
+          }
+        }
+      }
+    },
+    "Vision is disabled" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Распознавание изображений отключено"
+          }
+        }
+      }
+    },
+    "Voice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голос"
+          }
+        }
+      }
+    },
+    "Voice Assistant" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голосовой ассистент"
+          }
+        }
+      }
+    },
+    "Voice Conversations" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голосовое общение"
+          }
+        }
+      }
+    },
+    "Voice is not configured" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голос не настроен"
+          }
+        }
+      }
+    },
+    "Voice preview failed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось воспроизвести голос"
+          }
+        }
+      }
+    },
+    "Works offline" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Работает офлайн"
+          }
+        }
+      }
+    },
+    "Yes" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Да"
+          }
+        }
+      }
+    },
+    "You're muted" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Микрофон выключен"
+          }
+        }
+      }
+    },
+    "Your Choice of Engine" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Движок на ваш выбор"
+          }
+        }
+      }
+    },
+    "Your intelligent voice assistant" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш голосовой ассистент"
+          }
+        }
+      }
+    },
+    "Your messages, responses and attachments are never collected." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложение не собирает данные."
+          }
+        }
+      }
+    },
+    "Your token" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш токен"
+          }
+        }
+      }
+    },
+    "needs %lld GB RAM" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется %lld ГБ ОЗУ"
+          }
+        }
+      }
+    },
+    "the endpoint you configure" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "настроенный вами адрес"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.2"
+}

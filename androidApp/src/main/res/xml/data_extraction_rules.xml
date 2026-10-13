@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+   The app is privacy-first: conversations, role prompts and the API key must not
+   leave the device.
+
+   allowBackup="false" in the manifest already blocks cloud backup and adb backup,
+   but it does NOT stop device-to-device transfer on Android 12+ — that is governed
+   only by <device-transfer> below. The <cloud-backup> half is therefore redundant
+   with the manifest flag, and kept so this file states the whole policy on its own
+   rather than depending on an attribute in another file.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="external" path="." />
+    </device-transfer>
+</data-extraction-rules>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        AppCompat-descended, not the framework Material theme, because the Compose UI hosts
+        AppCompat views: compose-markdown renders every assistant bubble through a
+        CustomTextView, which extends AppCompatTextView and refuses to inflate under a
+        non-AppCompat theme ("...can only be used with a Theme.AppCompat theme").
+
+        DayNight rather than Light: the Compose theme already follows isSystemInDarkTheme(),
+        so a hard-coded light window background flashed white ahead of the first frame in
+        dark mode. Night colours resolve from the -night resource qualifier, which the
+        framework applies on its own — no AppCompatActivity or AppCompatDelegate needed.
+    -->
+    <style name="Theme.RolesWitchAndroid" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <!--
+        Theme used by external libraries that ship View-based activities (e.g. CanHub's
+        CropImageActivity, which extends AppCompatActivity). Those activities crash if the
+        inherited theme is not AppCompat-descended. CanHub also surfaces its action buttons
+        (rotate / flip / crop-confirm) via the options menu, so the theme MUST keep an
+        ActionBar — using a *.NoActionBar variant hides the confirm/cancel controls.
+    -->
+    <style name="Theme.RolesWitchExternalActivity" parent="Theme.AppCompat.DayNight.DarkActionBar" />
+</resources>

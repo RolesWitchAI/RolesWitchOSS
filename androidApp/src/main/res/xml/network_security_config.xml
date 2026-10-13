@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Cleartext is permitted app-wide and the lint warning is suppressed rather than
+        fixed, because there is nothing narrower to express: the server is user-supplied
+        — an OpenAI-compatible endpoint or an MCP server, often LM Studio or Ollama on
+        the same Wi-Fi — and a <domain-config> names literal hosts, not CIDR ranges, so
+        no enumeration covers "whatever machine this user runs a model server on".
+
+        Be clear about what that costs, because it is not limited to the LAN and it is
+        not opt-in. `normalizeApiUrl` defaults *any* schemaless input to http://, so a
+        user who types a public hostname gets a plaintext connection to it without ever
+        choosing one. What crosses that connection is the chat itself: message content,
+        attached images, voice transcriptions, and `config.token` as a Bearer header.
+        The Data Sharing notice covers who receives the data, not whether the transport
+        protects it.
+
+        Narrowing this belongs in `normalizeApiUrl` — defaulting to http:// only for
+        hosts that are demonstrably local and to https:// otherwise — not here, where
+        the only choices are all-or-nothing.
+    -->
+    <base-config cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration" />
+</network-security-config>

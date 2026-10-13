@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--
+        Android 17 enforces Local Network Protection on apps targeting SDK 37: direct
+        sockets to LAN addresses are silently dropped (the app sees a connect timeout,
+        not an error) until this new runtime permission is granted. The inference
+        server is user-supplied and is very often on the same Wi-Fi (LM Studio /
+        Ollama), and so are MCP tools and the external speech server. Gated by
+        `rememberLocalNetworkGate` in the flows that reach a user-supplied server — the
+        model picker (fetchModels), the external-voice Save preview, and the
+        speech-server Save probe; on older Android versions the declaration is inert.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!--
+        Google Play turns permissions into implied hardware requirements: CAMERA implies
+        both android.hardware.camera and android.hardware.camera.autofocus as
+        required="true", and the store then filters the app off every device that lacks
+        them. That silently hides it from camera-less tablets (and from devices with a
+        fixed-focus or front-only camera), which report "not compatible with your device"
+        in the Play listing with no way to install.
+        The camera is optional here — it only backs profile photos and message
+        attachments — and the bind site (CameraPreview) already catches the
+        "no available camera" bind failure, so declare the requirement away.
+    -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <!-- Foreground service + types for keeping LLM streaming / mic recording
+         alive while the screen is locked or the app is backgrounded. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <!-- Notifications (Android 13+) for the foreground-service notification. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Keep CPU running so the streamed response can be received while locked. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Package-visibility filtering (Android 11+) hides other apps' services
+         unless they are declared here. Without this, TextToSpeech cannot resolve
+         third-party engines such as Samsung TTS: the system default is treated
+         as "not installed" and the engine silently falls back to a visible one
+         (Google TTS), ignoring the user's choice in system Settings. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".RolesWitchApp"
+        android:allowBackup="false"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RolesWitchAndroid">
+        <!--
+            No screenOrientation attribute here, on purpose: from Android 16 the
+            platform ignores a fixed orientation on large screens for apps targeting
+            SDK 36+, so a static declaration no longer held everywhere. The portrait
+            lock is applied at runtime instead, only on phone-sized windows
+            (MainActivity.applyPhoneOrientationLock), while large screens free-rotate.
+            Orientation changes are swallowed for this activity (configChanges below)
+            so that rotating mid-call or mid-generation never destroys the in-flight
+            TTS / LLM work — voice calls, video calls and message generation survive a
+            rotation.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.RolesWitchAndroid"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.LlmForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone|specialUse|mediaPlayback">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuing an in-flight LLM chat response, and downloading an on-device model, while the screen is locked or the app is in the background" />
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!--
+            CanHub CropImageActivity extends AppCompatActivity, so it cannot inherit the
+            framework Material theme used elsewhere. Force an AppCompat-descended theme.
+        -->
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Theme.RolesWitchExternalActivity"
+            tools:replace="android:theme" />
+        <!--
+            LiteRT-LM's GPU backend runs on OpenCL. Apps targeting API 31+ cannot dlopen
+            a vendor library unless they declare it here, even one listed in the
+            platform's public.libraries — without this, the runtime reports
+            "OpenCL not supported on this platform", falls back to an OpenGL path that
+            is not implemented, and engine creation fails on hardware that is perfectly
+            capable of running the model.
+            All optional: devices without them fall back to the CPU backend.
+        -->
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
+        <uses-native-library android:name="libOpenCL-pixel.so" android:required="false" />
+        <uses-native-library android:name="libGLES_mali.so" android:required="false" />
+        <uses-native-library android:name="libvndksupport.so" android:required="false" />
+        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+
+    </application>
+
+</manifest>
