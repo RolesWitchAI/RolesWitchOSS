@@ -83,19 +83,23 @@ std::string LAppMinimumModel::MakeAssetPath(const std::string &assetFileName)
 }
 
 namespace {
-    // Case-insensitive substring match: hibiki's parameters are upper-case
-    // (PARAM_MOUTH_OPEN_Y) while haru's use the framework casing
-    // (ParamMouthOpenY), so a plain strstr() would only ever match one of them.
+    // Case- *and underscore-insensitive* substring match. Mouth parameter ids differ
+    // between models in both ways at once: hibiki and haru say PARAM_MOUTH_OPEN_Y,
+    // hiyori says ParamMouthOpenY — a match that respected underscores found the
+    // first spelling and silently missed the second (hiyori never lip-synced).
     bool ContainsIgnoreCase(const csmChar* haystack, const csmChar* needle)
     {
         if (!haystack || !needle) return false;
 
         for (const csmChar* h = haystack; *h; ++h)
         {
+            if (*h == '_') continue;
             const csmChar* hh = h;
             const csmChar* nn = needle;
             while (*hh && *nn)
             {
+                if (*hh == '_') { ++hh; continue; }
+                if (*nn == '_') { ++nn; continue; }
                 char a = *hh;
                 char b = *nn;
                 if (a >= 'A' && a <= 'Z') a = static_cast<char>(a - 'A' + 'a');
@@ -159,7 +163,8 @@ void LAppMinimumModel::SetupModel()
     //
     // The model3.json LipSync group cannot be the source here: hibiki's json has
     // no such group at all (haru's does). Collect the model's own mouth-open
-    // parameter ids instead, matched case-insensitively — see ContainsIgnoreCase.
+    // parameter ids instead — matched case- *and underscore-insensitively*:
+    // hibiki/haru write PARAM_MOUTH_OPEN_Y, hiyori writes ParamMouthOpenY.
     for (csmInt32 i = 0; i < _model->GetParameterCount(); ++i)
     {
         if (ContainsIgnoreCase(_model->GetParameterId(i)->GetString().GetRawString(), "MOUTH_OPEN"))

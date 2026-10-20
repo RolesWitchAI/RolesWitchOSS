@@ -203,10 +203,11 @@ thing; settling on a page switches the model in place.
   `LAppMinimumModel.cpp` does: it forces every `_lipSyncIds` parameter to 0 while not
   speaking and adds `_lipSyncValue` while speaking. That only works because
   `SetupModel()` fills `_lipSyncIds` by scanning the model's own parameters for
-  "MOUTH_OPEN", **case-insensitively** — Hibiki's ids are `PARAM_MOUTH_OPEN_Y`,
-  Haru's are `ParamMouthOpenY`, and the model3.json `LipSync` group can't be the
-  source (Hibiki's json has none). The vector was originally never populated at all,
-  which made both halves of that block no-ops. On the Kotlin side the lip-sync loop
+  "MOUTH_OPEN", matched **case- and underscore-insensitively** — hibiki/haru write
+  `PARAM_MOUTH_OPEN_Y`, hiyori writes `ParamMouthOpenY`, and the model3.json
+  `LipSync` group can't be the source (hibiki's json has none). The vector was
+  originally never populated at all, which made both halves of that block no-ops;
+  a later underscore-respecting match quietly re-broke hiyori. On the Kotlin side the lip-sync loop
   resets `_lipSyncValue` in a `finally` — the loop is *cancelled* when speaking flips,
   so a reset placed after it would never run and the mouth would stay open after a
   reply.
