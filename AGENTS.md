@@ -594,6 +594,14 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 
 ## Tests
 
+- **Run the unit tests before any build of changed code.** After *every* change to
+  `:sharedLogic` — production code, actuals, or build config — run the suite
+  (`./gradlew :sharedLogic:jvmTest` minimum; all three targets for anything
+  platform-touching) **before** assembling anything (`:androidApp:assembleDebug`, the
+  Xcode framework, the apps). Compilation alone says the code builds; only the tests
+  say the behaviour still holds, and an edit that breaks a test silently today ships a
+  regression tomorrow. If a change requires touching an existing test, that is part of
+  the change and belongs in the same commit.
 - **Tests exist.** `:sharedLogic` has ~290 tests per target across four source sets,
   and they must stay passing:
   - `commonTest` (pure + service logic; runs on JVM, Android host, and iOS simulator),
