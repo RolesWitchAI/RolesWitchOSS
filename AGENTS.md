@@ -679,18 +679,66 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 
 ## Tests
 
-- **There are currently no tests.** `commonTest` is declared as a source set in
-  `sharedLogic/build.gradle.kts` but the `sharedLogic/src/commonTest/`
-  directory does not exist, and `:androidApp` has no `*Test` sources either.
-  Do not assume a green suite means tests pass — it usually means none ran.
-- Per the README: AGP 9.x's `com.android.kotlin.multiplatform.library` plugin
-  only picks up Android host tests under `androidHostTest` when `withHostTest { }`
-  is enabled on the android target. Until that block is added, put shared tests
-  in `commonTest`, not `androidHostTest`/`androidUnitTest`.
-- To run a single test class once tests exist:
-  `./gradlew :sharedLogic:jvmTest --tests "fully.qualified.ClassName"` (a JVM
-  target is not currently declared, so prefer `:sharedLogic:allTests` or the
-  iOS/Android-specific tasks).
+- **Run the unit tests before any build of changed code.** After *every* change to
+  `:sharedLogic` — production code, actuals, or build config — run the suite
+  (`./gradlew :sharedLogic:jvmTest` minimum; all three targets for anything
+  platform-touching) **before** assembling anything (`:androidApp:assembleDebug`, the
+  Xcode framework, the apps). Compilation alone says the code builds; only the tests
+  say the behaviour still holds, and an edit that breaks a test silently today ships a
+  regression tomorrow. If a change requires touching an existing test, that is part of
+  the change and belongs in the same commit.
+- **Tests exist.** `:sharedLogic` has ~290 tests per target across four source sets,
+  and they must stay passing:
+  - `commonTest` (pure + service logic; runs on JVM, Android host, and iOS simulator),
+  - `jvmTest` (real-Room suites: seeding, the 6→27 migration chain, the Swift-facing
+    `AppContainer` facades),
+  - `androidHostTest` (the PDFBox `PdfTextExtractor` actual; enabled via
+    `withHostTest { isReturnDefaultValues = true }` on the android target),
+  - `iosTest` (the PDFKit actual, NSData interop, `appDataDirectory`, the iosMain
+    factories — against the simulator's real container).
+  Run per target: `./gradlew :sharedLogic:jvmTest` /
+  `:sharedLogic:testAndroidHostTest` / `:sharedLogic:iosSimulatorArm64Test`. There is
+  no `allTests` task on this Kotlin version. A **`jvm()` target exists** for the fast
+  suite and the Room driver; `jvmMain` is just the `PdfTextExtractor` stub plus deps
+  (`sqlite-bundled`, `ktor-okhttp` so a bare `HttpClient { }` resolves).
+- **Servers are mocked, not stubbed subclasses.** `OAIService` and
+  `ExternalTtsClient` take an optional `HttpClientEngine` constructor param,
+  `McpService` an optional `HttpClient`, and `HuggingFaceModelResolver` has an
+  internal `testEngine` var (it stays an `object` because Swift reaches it as
+  `.shared`) — all default-valued, so no production call site passes one. Tests inject
+  Ktor's `MockEngine` and serve canned `/v1/chat/completions` SSE chunks, JSON-RPC
+  envelopes, AAC bytes, or HuggingFace metadata; see `ServiceTestHelpers.kt` for the
+  fixtures (`sseBody`, `contentDelta`, `toolCallDelta` — build deltas as JSON, never
+  hand-escaped strings).
+- **`withTimeout` + `runTest` don't mix**: `McpService.discoverToolNames` bounds the
+  exchange with `withTimeout`, and `runTest`'s virtual clock expires it before the
+  (real) MockEngine round trip lands — those tests use `runBlocking`. Conversely,
+  anything crossing `Dispatchers.Default` (e.g. `LLMService.extractDocuments`) cannot
+  be awaited with `advanceUntilIdle` on a background-launched turn; poll with a
+  virtual `delay` loop inside `withTimeout` instead. `MutableStateFlow` conflates, so
+  intermediate stream values are asserted via what the engine's `onChunk` received,
+  not by collecting the flow.
+- **The resolver's `http` is a process-wide lazy** built from `testEngine` once per
+  test run; its tests therefore share one engine in a companion object and swap a
+  shared handler per test.
+- **Room behaviour**: `MigrationChainTest` (jvmTest) hand-builds a v6 schema, runs the
+  whole chain, and opens the result in Room by copying the identity hash from a fresh
+  DB — the chain staying gapless and schema-exact is the thing both platform factories
+  depend on. `java.nio.file.Files` temp dirs are jvmTest-only; `commonTest` may not
+  touch JVM APIs (it compiles for three targets).
+- **Coverage is JaCoCo, not Kover**: Kover hard-fails on the AGP 9 KMP plugin ("requires
+  extension with name 'android'"). `./gradlew :sharedLogic:sharedCoverage` reports on
+  the JVM compilation with Room's generated `*_Impl`/adapter classes and the
+  compiler-generated never-invoked bridges (`InferenceEngine.DefaultImpls`, the
+  `AppDatabaseConstructor` expect bridge) excluded — ~99.6% lines / ~98.6% instructions;
+  the residual is coroutine state-machine resume legs, `runCatching` failure arms that
+  are dead by construction (nothing under them can throw), the resolver's
+  process-locked default-client branch, and the JVM-unreachable PDF truncation legs.
+  Kotlin/Native cannot be instrumented (iOS tests run green but report no numbers).
+- iOS factory tests write into the simulator's persisted container — use fresh ids
+  per run, or a rerun hits `UNIQUE constraint failed`.
+- Test PDFs are built byte-correct in code (`TestPdfs.kt`, xref offsets computed) so
+  both PDFKit and PDFBox parse them without repair.
 
 ## Room / data
 

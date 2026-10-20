@@ -28,6 +28,7 @@ import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIConfig
 import com.aallam.openai.client.OpenAIHost
 import com.aallam.openai.client.RetryStrategy
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.http.Url
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -109,7 +110,15 @@ data class LLMMessage(
     enum class LLMRole { USER, ASSISTANT }
 }
 
-class OAIService : InferenceEngine {
+class OAIService(
+    /**
+     * Explicit ktor engine for the OpenAI-compatible HTTP client. Production leaves it
+     * null (the platform default engine resolves per target); tests inject a
+     * `MockEngine` to serve canned `/v1/chat/completions` and `/v1/models` replies
+     * without a network.
+     */
+    private val engine: HttpClientEngine? = null
+) : InferenceEngine {
     private var generationJob: Job? = null
 
     /**
@@ -183,7 +192,8 @@ class OAIService : InferenceEngine {
                 val openAIConfig = OpenAIConfig(
                     token = config.token,
                     host = host,
-                    timeout = Timeout(request = 600.seconds, connect = 30.seconds, socket = 600.seconds)
+                    timeout = Timeout(request = 600.seconds, connect = 30.seconds, socket = 600.seconds),
+                    engine = engine
                 )
                 val openAI = OpenAI(openAIConfig)
 
@@ -387,7 +397,8 @@ class OAIService : InferenceEngine {
                 // tried four times with exponential backoff and took 30-60s to surface an
                 // error despite the 15s timeout above. The user is sitting in front of this
                 // field waiting to be told the address is bad; retrying a typo is pointless.
-                retry = RetryStrategy(maxRetries = 0)
+                retry = RetryStrategy(maxRetries = 0),
+                engine = engine
             )
             val openAI = OpenAI(config)
             val models = openAI.models()

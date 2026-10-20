@@ -89,20 +89,19 @@ class McpError(override val message: String) : Exception(message)
  * ships, rather than pulled in with the official SDK, which would force Ktor 3.5 and
  * break openai-client's streaming.
  */
-class McpService {
-
+class McpService(
     /**
-     * One client for the process.
-     *
-     * Only a connect timeout is configured here: the per-request ceilings differ by
-     * operation (discovery vs. a tool call) and are passed down to [McpClient], which
-     * applies them per request.
+     * The HTTP client every MCP session runs on. Injectable so tests can point the
+     * whole client at a `MockEngine` speaking canned JSON-RPC; the default is the
+     * production client (connect timeout only — per-request ceilings are applied by
+     * [McpClient]).
      */
-    private val http = HttpClient {
+    private val http: HttpClient = HttpClient {
         install(HttpTimeout) {
             connectTimeoutMillis = 30.seconds.inWholeMilliseconds
         }
     }
+) {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
