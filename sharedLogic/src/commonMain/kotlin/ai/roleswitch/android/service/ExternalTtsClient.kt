@@ -56,9 +56,17 @@ class ExternalTtsClient(
      * Explicit ktor engine for the speech server client — the same test seam
      * [OAIService] carries. Null in production (platform default engine); tests
      * inject a `MockEngine` serving canned `/v1/audio/speech` replies.
+     *
+     * No default value on purpose: Kotlin default arguments do not export to
+     * ObjC/Swift, and the iOS app builds this client with a plain `ExternalTtsClient()`.
+     * The production no-argument shape is the secondary constructor below.
      */
-    private val engine: HttpClientEngine? = null
+    private val engine: HttpClientEngine?
 ) {
+
+    /** The production entry point (and the initializer Swift sees). */
+    constructor() : this(null)
+
 
     /**
      * @param endpoint the OpenAI-compatible base URL, e.g. `http://0.0.0.0:9000/v1`.
