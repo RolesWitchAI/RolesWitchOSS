@@ -9,6 +9,7 @@ import ai.roleswitch.android.data.dao.InMemoryMcpToolDao
 import ai.roleswitch.android.data.dao.InMemoryMessageDao
 import ai.roleswitch.android.data.dao.InMemoryMessageThreadDao
 import ai.roleswitch.android.data.model.DocumentInput
+import ai.roleswitch.android.data.model.McpTool
 import ai.roleswitch.android.data.model.Message
 import ai.roleswitch.android.data.model.MessageThread
 import ai.roleswitch.android.service.mcp.McpService
@@ -24,6 +25,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -371,6 +375,281 @@ class LLMServiceTest {
         val h = Harness()
         h.service.cancelRequest() // nothing in flight — must be a no-op
         assertEquals(false, h.service.isStreaming.value)
+    }
+
+    // ---- remote-engine turns: the OAIService path with a mocked LLM server ----------
+
+    @Test
+    fun aRemoteTurnRunsThroughTheMockedEndpoint() = runTest {
+        var bodies = mutableListOf<String>()
+        val oai = OAIService(
+            MockEngine { request ->
+                bodies += (request.body as io.ktor.http.content.TextContent).text
+                respondSse(sseBody(contentDelta("remote "), contentDelta("answer")))
+            }
+        )
+        val messageDao = InMemoryMessageDao()
+        val threadDao = InMemoryMessageThreadDao()
+        val settings = SettingsManager(InMemoryPreferenceDataStore())
+        settings.setUseOnDevice(false)
+        settings.setOpenaiAPI("http://mock.test/v1")
+        settings.setSelectedModel("test-model")
+        val service = LLMService(
+            oaiService = oai,
+            settingsManager = settings,
+            messageDao = messageDao,
+            threadDao = threadDao,
+            mcpToolDao = InMemoryMcpToolDao(),
+            mcpService = McpService(HttpClient(MockEngine { respondOk() }))
+        )
+        threadDao.insert(thread(prompt = "Remote prompt"))
+
+        val thinkingSeen = mutableListOf<Boolean>()
+        backgroundScope.launch { service.isThinking.collect { thinkingSeen += it } }
+        runCurrent()
+
+        service.sendMessage("Hi", "thread-1")
+        runCurrent()
+
+        assertEquals("remote answer", messageDao.messages.last().content)
+        assertEquals("Remote prompt", bodies.first().let { kotlinx.serialization.json.Json.parseToJsonElement(it).jsonObject["messages"]!!.jsonArray[0].jsonObject["content"]!!.jsonPrimitive.content })
+        assertTrue(thinkingSeen.contains(true), "isThinking never observed true: $thinkingSeen")
+        assertTrue(thinkingSeen.last() == false)
+    }
+
+    @Test
+    fun aToolEnabledTurnRunsTheLoopEndToEnd() = runTest {
+        // The mocked LLM server asks for the tool once, then concludes.
+        var llmRound = 0
+        val llmBodies = mutableListOf<String>()
+        val oai = OAIService(
+            MockEngine { request ->
+                llmBodies += (request.body as io.ktor.http.content.TextContent).text
+                llmRound++
+                if (llmRound == 1) {
+                    respondSse(
+                        sseBody(
+                            toolCallDelta(index = 0, id = "call_1", name = "Parallel__web_search", arguments = """{"objective":"capital of France"}""")
+                        )
+                    )
+                } else {
+                    respondSse(sseBody(contentDelta("It is Paris.")))
+                }
+            }
+        )
+        // The mocked MCP endpoint answers with the captured Parallel shape.
+        val mcp = McpService(
+            HttpClient(
+                MockEngine { request ->
+                    if (request.method.value == "DELETE") return@MockEngine respondJson("", io.ktor.http.HttpStatusCode.OK)
+                    when (request.rpcMethod()) {
+                        "initialize" -> respondJson("""{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18"}}""")
+                        "notifications/initialized" -> respondJson("", io.ktor.http.HttpStatusCode.Accepted)
+                        "tools/list" -> respondJson("""{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"web_search","description":"search","inputSchema":{"type":"object","properties":{"objective":{"type":"string"}}}}]}}""")
+                        "tools/call" -> respondJson("""{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Paris is the capital."}],"isError":false}}""")
+                        else -> respondErrorJson(io.ktor.http.HttpStatusCode.BadRequest, "{}")
+                    }
+                }
+            )
+        )
+        val messageDao = InMemoryMessageDao()
+        val threadDao = InMemoryMessageThreadDao()
+        val mcpToolDao = InMemoryMcpToolDao()
+        val settings = SettingsManager(InMemoryPreferenceDataStore())
+        settings.setUseOnDevice(false)
+        settings.setOpenaiAPI("http://mock.test/v1")
+        settings.setSelectedModel("test-model")
+        val service = LLMService(
+            oaiService = oai,
+            settingsManager = settings,
+            messageDao = messageDao,
+            threadDao = threadDao,
+            mcpToolDao = mcpToolDao,
+            mcpService = mcp
+        )
+        mcpToolDao.insert(McpTool(id = "p1", name = "Parallel", url = "http://mcp.test/mcp", token = "", createdAt = 1L, updatedAt = 1L))
+        threadDao.insert(thread().copy(customToolIds = "p1"))
+
+        val toolFlags = mutableListOf<Boolean>()
+        backgroundScope.launch { service.isCallingTool.collect { toolFlags += it } }
+        runCurrent()
+
+        service.sendMessage("What is the capital of France?", "thread-1")
+        runCurrent()
+
+        val assistant = messageDao.messages.last()
+        assertEquals("It is Paris.", assistant.content)
+        // The trace carries the human-readable server/tool pair, and the tool status ran.
+        assertTrue(assistant.reasoning.contains("→ Parallel/web_search("), assistant.reasoning)
+        assertTrue(toolFlags.contains(true), "isCallingTool never observed true: $toolFlags")
+        assertTrue(toolFlags.last() == false)
+        // The first request advertised exactly the namespaced function.
+        val first = kotlinx.serialization.json.Json.parseToJsonElement(llmBodies.first()).jsonObject
+        assertEquals("Parallel__web_search", first["tools"]!!.jsonArray[0].jsonObject["function"]!!.jsonObject["name"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun aToolEnabledTurnClosesItsSessionWhenTheModelFails() = runTest {
+        var llmRound = 0
+        val oai = OAIService(
+            MockEngine { request ->
+                llmRound++
+                if (llmRound == 1) {
+                    respondSse(
+                        sseBody(
+                            toolCallDelta(index = 0, id = "call_1", name = "Parallel__web_search", arguments = """{"objective":"capital"}""")
+                        )
+                    )
+                } else {
+                    // The tool ran; the model's follow-up round fails.
+                    respondErrorJson(io.ktor.http.HttpStatusCode.InternalServerError, """{"error":{"message":"model died"}}""")
+                }
+            }
+        )
+        var deletes = 0
+        val mcp = McpService(
+            HttpClient(
+                MockEngine { request ->
+                    if (request.method.value == "DELETE") {
+                        deletes++
+                        return@MockEngine respondJson("", io.ktor.http.HttpStatusCode.OK)
+                    }
+                    when (request.rpcMethod()) {
+                        "initialize" -> respondJson(
+                            """{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18"}}""",
+                            io.ktor.http.HttpStatusCode.OK,
+                            io.ktor.http.Headers.build {
+                                append("Mcp-Session-Id", "sess-tool-fail")
+                            }
+                        )
+                        "notifications/initialized" -> respondJson("", io.ktor.http.HttpStatusCode.Accepted)
+                        "tools/list" -> respondJson("""{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"web_search","inputSchema":{"type":"object"}}]}}""")
+                        "tools/call" -> respondJson("""{"jsonrpc":"2.0","id":3,"result":{"content":[{"type":"text","text":"Paris."}],"isError":null}}""")
+                        else -> respondErrorJson(io.ktor.http.HttpStatusCode.BadRequest, "{}")
+                    }
+                }
+            )
+        )
+        val messageDao = InMemoryMessageDao()
+        val threadDao = InMemoryMessageThreadDao()
+        val mcpToolDao = InMemoryMcpToolDao()
+        val settings = SettingsManager(InMemoryPreferenceDataStore())
+        settings.setUseOnDevice(false)
+        settings.setOpenaiAPI("http://mock.test/v1")
+        settings.setSelectedModel("test-model")
+        val service = LLMService(
+            oaiService = oai,
+            settingsManager = settings,
+            messageDao = messageDao,
+            threadDao = threadDao,
+            mcpToolDao = mcpToolDao,
+            mcpService = mcp
+        )
+        mcpToolDao.insert(McpTool(id = "p1", name = "Parallel", url = "http://mcp.test/mcp", token = "", createdAt = 1L, updatedAt = 1L))
+        threadDao.insert(thread().copy(customToolIds = "p1"))
+        val discarded = mutableListOf<String>()
+        backgroundScope.launch { service.responseDiscarded.collect { discarded += it } }
+        runCurrent()
+
+        val error = assertFailsWith<OAIError.InvalidResponse> {
+            service.sendMessage("What is the capital of France?", "thread-1")
+        }
+        runCurrent()
+        assertTrue(error.message!!.contains("model died"), error.message)
+        // User row only; the session was torn down on the failure path.
+        assertEquals(listOf("What is the capital of France?"), messageDao.messages.map { it.content })
+        assertEquals(listOf("thread-1"), discarded)
+        assertEquals(1, deletes)
+        assertEquals(false, service.isCallingTool.value)
+    }
+
+    @Test
+    fun aSupersededTurnCleansUpWithoutTouchingTheReplacement() = runTest {
+        val engine = FakeEngine()
+        // First turn hangs; the second answers immediately.
+        var calls = 0
+        engine.behavior = {
+            calls++
+            if (calls == 1) awaitCancellation() else GenerationResult("second", "")
+        }
+        val h = Harness(engine)
+        h.threadDao.insert(thread())
+        val discarded = mutableListOf<String>()
+        val completed = mutableListOf<CompletedResponse>()
+        backgroundScope.launch { h.service.responseDiscarded.collect { discarded += it } }
+        backgroundScope.launch { h.service.responseCompleted.collect { completed += it } }
+        runCurrent()
+
+        backgroundScope.launch { h.service.sendMessage("first", "thread-1") }
+        // Wait for the first turn to be in flight, then supersede it from the same
+        // thread slot — sendMessage cancels the active turn and starts a new one.
+        withTimeout(5_000) {
+            while (!h.service.isStreaming.value) kotlinx.coroutines.delay(10)
+        }
+        h.service.sendMessage("second", "thread-1")
+        runCurrent()
+
+        // The second turn's answer persisted; the cancelled first turn raised exactly
+        // one discard (the UI's signal to drop its partial bubble) and no error.
+        assertEquals(listOf("first", "second", "second"), h.messageDao.messages.map { it.content })
+        assertEquals(listOf(CompletedResponse("thread-1", "second")), completed)
+        assertEquals(listOf("thread-1"), discarded)
+        assertEquals(false, h.service.isStreaming.value)
+        assertEquals("", h.service.streamingResponse.value)
+    }
+
+    @Test
+    fun anErrorWithoutAMessageIsNamedByItsClass() = runTest {
+        val h = Harness()
+        h.engine.behavior = { throw IllegalStateException() } // no message at all
+        h.threadDao.insert(thread())
+        val error = assertFailsWith<OAIError.InvalidResponse> { h.service.sendMessage("Hi", "thread-1") }
+        assertEquals("IllegalStateException", error.reason)
+    }
+
+    @Test
+    fun anAnonymousFailureFallsBackToUnknownError() = runTest {
+        val h = Harness()
+        // Anonymous classes have no simpleName and this one carries no message — the
+        // last-resort wording is all that is left to show.
+        h.engine.behavior = { throw object : RuntimeException() {} }
+        h.threadDao.insert(thread())
+        val error = assertFailsWith<OAIError.InvalidResponse> { h.service.sendMessage("Hi", "thread-1") }
+        assertEquals("Unknown error", error.reason)
+    }
+
+    @Test
+    fun aTurnForAVanishedThreadRunsAgainstTheGlobalSettings() = runTest {
+        // No thread row exists — resolution falls back to the placeholder thread and
+        // the default system prompt.
+        val h = Harness()
+        h.service.sendMessage("Hi", "ghost-thread")
+        assertEquals("You are a helpful assistant.", h.engine.seenPrompts.single())
+        assertEquals("Hi", h.messageDao.messages.first().content)
+        assertEquals("ghost-thread", h.messageDao.messages.first().threadId)
+    }
+
+    @Test
+    fun onDeviceWithoutAPlatformEngineFallsBackToTheRemoteOne() = runTest {
+        val oai = OAIService(
+            MockEngine { _ -> respondSse(sseBody(contentDelta("fallback answer"))) }
+        )
+        val settings = SettingsManager(InMemoryPreferenceDataStore())
+        settings.setUseOnDevice(true) // but no onDeviceEngine was supplied
+        settings.setOpenaiAPI("http://mock.test/v1")
+        settings.setSelectedModel("test-model")
+        val messageDao = InMemoryMessageDao()
+        val service = LLMService(
+            oaiService = oai,
+            settingsManager = settings,
+            messageDao = messageDao,
+            threadDao = InMemoryMessageThreadDao(),
+            mcpToolDao = InMemoryMcpToolDao(),
+            mcpService = McpService(HttpClient(MockEngine { respondOk() })),
+            onDeviceEngine = null
+        )
+        service.sendMessage("Hi", "thread-1")
+        assertEquals(listOf("Hi", "fallback answer"), messageDao.messages.map { it.content })
     }
 
     @Test

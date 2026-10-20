@@ -130,6 +130,9 @@ class ApiUrlTest {
     @Test
     fun hostnameExcludesThePort() {
         assertEquals("192.168.0.100", hostnameFromApiUrl("http://192.168.0.100:1234/v1"))
+        // The split is on the LAST colon, so earlier colons stay part of the host.
+        assertEquals("a:b", hostnameFromApiUrl("a:b:c"))
+        assertEquals("host", hostnameFromApiUrl("host:notaport/path"))
     }
 
     @Test

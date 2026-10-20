@@ -52,14 +52,45 @@ class MigrationChainTest {
             }
         }
 
+    /** Delegates everything; the Nth executed statement's step() throws. */
+    private class StepThrowsAt(private val delegate: SQLiteConnection, private val throwOn: Int) : SQLiteConnection {
+        private var steps = 0
+        override fun prepare(sql: String): androidx.sqlite.SQLiteStatement {
+            val inner = delegate.prepare(sql)
+            return object : androidx.sqlite.SQLiteStatement by inner {
+                override fun step(): Boolean {
+                    steps++
+                    if (steps == throwOn) throw RuntimeException("step boom $throwOn")
+                    return inner.step()
+                }
+            }
+        }
+        override fun close() = delegate.close()
+    }
+
+    /** Delegates everything, counting prepare() calls. */
+    private class CountingPrepares(private val delegate: SQLiteConnection) : SQLiteConnection {
+        var prepares = 0
+        override fun prepare(sql: String): androidx.sqlite.SQLiteStatement {
+            prepares++
+            return delegate.prepare(sql)
+        }
+        override fun close() = delegate.close()
+    }
+
     private fun scalar(sql: String): String? =
         connection.prepare(sql).use { statement ->
             if (statement.step() && !statement.isNull(0)) statement.getText(0) else null
         }
 
     /** The schema exactly as a v6 install would have had it. */
-    private fun createV6Schema() {
-        exec(
+    private fun createV6Schema() = createV6Schema(connection)
+
+    private fun createV6Schema(conn: SQLiteConnection) {
+        fun run(sql: String) {
+            conn.prepare(sql).use { it.step() }
+        }
+        run(
             """
             CREATE TABLE IF NOT EXISTS `message_threads` (
                 `threadId` TEXT NOT NULL,
@@ -72,7 +103,7 @@ class MigrationChainTest {
             )
             """.trimIndent()
         )
-        exec(
+        run(
             """
             CREATE TABLE IF NOT EXISTS `messages` (
                 `id` TEXT NOT NULL,
@@ -89,8 +120,8 @@ class MigrationChainTest {
             )
             """.trimIndent()
         )
-        exec("CREATE INDEX IF NOT EXISTS `index_messages_threadId` ON `messages` (`threadId`)")
-        exec(
+        run("CREATE INDEX IF NOT EXISTS `index_messages_threadId` ON `messages` (`threadId`)")
+        run(
             """
             CREATE TABLE IF NOT EXISTS `roles` (
                 `id` TEXT NOT NULL,
@@ -106,11 +137,16 @@ class MigrationChainTest {
         )
         // One row per table, carrying values the later migrations are supposed to
         // transform or preserve.
-        exec("INSERT INTO message_threads VALUES ('t-1', 'Old title', 'old prompt', 1, 100, 100)")
-        exec("INSERT INTO messages VALUES ('m-1', 'kept text', '', 100, 100, 1, 0, '', 't-1')")
-        exec("INSERT INTO roles VALUES ('virtual_friend', 'Виртуальный персонаж', 'p', 's', 1, 1, 100)")
-        exec("PRAGMA user_version = 6")
+        run("INSERT INTO message_threads VALUES ('t-1', 'Old title', 'old prompt', 1, 100, 100)")
+        run("INSERT INTO messages VALUES ('m-1', 'kept text', '', 100, 100, 1, 0, '', 't-1')")
+        run("INSERT INTO roles VALUES ('virtual_friend', 'Виртуальный персонаж', 'p', 's', 1, 1, 100)")
+        run("PRAGMA user_version = 6")
     }
+
+    private fun freshDb(): SQLiteConnection =
+        driver.open(
+            java.nio.file.Files.createTempDirectory("roleswitch-fail").resolve("f.sqlite").toString()
+        )
 
     private val chain = listOf(
         AppDatabase.MIGRATION_6_7,
@@ -221,6 +257,40 @@ class MigrationChainTest {
         // And the data survived every rebuild.
         assertEquals("kept text", scalar("SELECT content FROM messages WHERE id = 'm-1'"))
         assertEquals("Old title", scalar("SELECT title FROM message_threads WHERE threadId = 't-1'"))
+    }
+
+    @Test
+    fun everyMigrationStatementFailsLoudlyWhenItsOwnStepThrows() {
+        // For each migration and each statement within it: build the schema that
+        // migration's predecessors produce, then make exactly that statement's
+        // step() throw. The failure must propagate out of migrate() — a migration
+        // that swallowed a failed statement would leave a half-migrated schema under
+        // an unchanged user_version, which Room would then refuse to open.
+        chain.forEachIndexed { index, migration ->
+            val label = "${migration.startVersion}->${migration.endVersion}"
+
+            // How many statements does this migration run on a healthy schema?
+            val counter = CountingPrepares(freshDb().also { createV6Schema(it); chain.take(index).forEach { m -> m.migrate(it) } })
+            counter.use { migration.migrate(it) }
+            val statements = counter.prepares
+
+            for (failing in 1..statements) {
+                val conn = freshDb()
+                try {
+                    createV6Schema(conn)
+                    chain.take(index).forEach { m -> m.migrate(conn) }
+                    val threw = try {
+                        migration.migrate(StepThrowsAt(conn, failing))
+                        false
+                    } catch (expected: RuntimeException) {
+                        true
+                    }
+                    assertTrue(threw, "statement $failing of $label swallowed its failure")
+                } finally {
+                    conn.close()
+                }
+            }
+        }
     }
 
     @Test

@@ -103,6 +103,32 @@ class OAIServiceTest {
     }
 
     @Test
+    fun unparseableNumericParametersAreOmittedToo() = runTest {
+        var body: String? = null
+        val oai = service { request ->
+            body = (request.body as io.ktor.http.content.TextContent).text
+            respondSse(sseBody(contentDelta("ok")))
+        }
+        val garbage = remoteEngineSettings(
+            temperature = "hot",
+            topP = "ninety",
+            n = "1.5",
+            maxCompletionTokens = "many",
+            presencePenalty = "-",
+            frequencyPenalty = "n/a"
+        )
+        oai.generate(messages, "sys", garbage, onChunk = { })
+
+        val json = assertNotNull(body)!!
+        assertTrue(!json.contains("temperature"), json)
+        assertTrue(!json.contains("top_p"), json)
+        assertTrue(!json.contains("\"n\""), json)
+        assertTrue(!json.contains("max_completion_tokens"), json)
+        assertTrue(!json.contains("presence_penalty"), json)
+        assertTrue(!json.contains("frequency_penalty"), json)
+    }
+
+    @Test
     fun theSystemPromptLeadsTheConversation() = runTest {
         var body: String? = null
         val oai = service { request ->
@@ -331,6 +357,170 @@ class OAIServiceTest {
         // must still name what happened.
         assertTrue(error.message!!.contains("model overloaded"), error.message)
         assertTrue(!error.isSilent)
+    }
+
+    @Test
+    fun anAssistantMessageRightAfterTheSystemPromptIsDropped() = runTest {
+        var body: String? = null
+        val oai = service { request ->
+            body = (request.body as io.ktor.http.content.TextContent).text
+            respondSse(sseBody(contentDelta("ok")))
+        }
+        // History whose first consolidated turn is the assistant's greeting — the
+        // request must not open with two consecutive system-adjacent voices.
+        val assistantFirst = listOf(
+            LLMMessage(LLMMessage.LLMRole.ASSISTANT, "hello!"),
+            LLMMessage(LLMMessage.LLMRole.USER, "again")
+        )
+        oai.generate(assistantFirst, "sys", remoteEngineSettings(), onChunk = { })
+        val wire = kotlinx.serialization.json.Json.parseToJsonElement(body!!).jsonObject["messages"]!!.jsonArray
+        assertEquals(2, wire.size) // system + user; the stale greeting was removed
+        assertEquals("user", wire[1].jsonObject["role"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun aWellFormed4xxMapsToItsStatusAndTheServersMessage() = runTest {
+        val oai = service { _ ->
+            respondErrorJson(
+                HttpStatusCode.BadRequest,
+                """{"error":{"message":"max_tokens is too large","type":"invalid_request_error","param":null,"code":null}}"""
+            )
+        }
+        val error = assertFailsWith<OAIError.InvalidResponse> {
+            oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        }
+        assertEquals(400, error.statusCode)
+        assertTrue(error.message!!.contains("max_tokens is too large"), error.message)
+    }
+
+    @Test
+    fun aToolCallFragmentWithAnEmptyNameIsNotACall() = runTest {
+        val oai = service { _ ->
+            respondSse(
+                sseBody(
+                    toolCallDelta(index = 0, id = "call_x", name = "", arguments = "{}"),
+                    contentDelta("plain")
+                )
+            )
+        }
+        val result = oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        assertEquals("plain", result.content)
+        assertEquals(emptyList(), result.toolCalls)
+    }
+
+    @Test
+    fun anErrorCodeWithoutAMessageBecomesTheReason() = runTest {
+        val oai = service { _ ->
+            respondErrorJson(
+                HttpStatusCode.BadRequest,
+                """{"error":{"code":"context_length_exceeded","message":null,"param":null}}"""
+            )
+        }
+        val error = assertFailsWith<OAIError.InvalidResponse> {
+            oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        }
+        assertTrue(error.message!!.contains("context_length_exceeded"), error.message)
+    }
+
+    @Test
+    fun anErrorBodyWithoutADetailFallsBackToTheTransportMessage() = runTest {
+        val oai = service { _ ->
+            respondErrorJson(HttpStatusCode.Unauthorized, """{"error":{}}""")
+        }
+        val error = assertFailsWith<OAIError.InvalidResponse> {
+            oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        }
+        assertEquals(401, error.statusCode)
+        assertTrue(error.message!!.isNotBlank(), error.message)
+    }
+
+    @Test
+    fun chunksWithoutDeltasAreIgnored() = runTest {
+        val oai = service { _ ->
+            respondSse(
+                sseBody(
+                    """{"id":"1","object":"chat.completion.chunk","created":0,"model":"test-model","choices":[]}""",
+                    """{"id":"1","object":"chat.completion.chunk","created":0,"model":"test-model","choices":[{"index":0,"delta":null,"finish_reason":"stop"}]}""",
+                    contentDelta("after silence")
+                )
+            )
+        }
+        val result = oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        assertEquals("after silence", result.content)
+    }
+
+    @Test
+    fun aToolCallWithoutAnExecutorEndsTheRoundWithTheNarration() = runTest {
+        // The server asks for a tool but this turn has no executor — the requested
+        // calls are dropped and the streamed text becomes the answer.
+        val oai = service { _ ->
+            respondSse(
+                sseBody(
+                    contentDelta("I would look that up, but"),
+                    toolCallDelta(index = 0, id = "call_1", name = "fn", arguments = "{}")
+                )
+            )
+        }
+        val result = oai.generate(
+            messages, "sys", remoteEngineSettings(),
+            onChunk = { },
+            toolSpecs = listOf(
+                ai.roleswitch.android.service.mcp.McpToolSpec(
+                    functionName = "fn",
+                    description = "d",
+                    parametersSchema = kotlinx.serialization.json.buildJsonObject { put("type", "object") },
+                    serverName = "s"
+                )
+            ),
+            onToolCall = null,
+            callTool = null
+        )
+        assertEquals("I would look that up, but", result.content)
+        assertEquals(emptyList(), result.toolCalls)
+    }
+
+    @Test
+    fun aToolRoundWithNoNarrationSendsANullAssistantContent() = runTest {
+        var requestCount = 0
+        val bodies = mutableListOf<String>()
+        val oai = service { request ->
+            bodies += (request.body as io.ktor.http.content.TextContent).text
+            requestCount++
+            if (requestCount == 1) {
+                // A tool call with no accompanying text at all.
+                respondSse(sseBody(toolCallDelta(index = 0, id = "call_1", name = "fn", arguments = "{}")))
+            } else {
+                respondSse(sseBody(contentDelta("done")))
+            }
+        }
+        val spec = ai.roleswitch.android.service.mcp.McpToolSpec(
+            functionName = "fn",
+            description = "d",
+            parametersSchema = kotlinx.serialization.json.buildJsonObject { put("type", "object") },
+            serverName = "s"
+        )
+        oai.generate(
+            messages, "sys", remoteEngineSettings(),
+            onChunk = { }, toolSpecs = listOf(spec), onToolCall = null,
+            callTool = { _, _ -> "ok" }
+        )
+        val second = kotlinx.serialization.json.Json.parseToJsonElement(bodies[1]).jsonObject
+        val assistantMessage = second["messages"]!!.jsonArray[second["messages"]!!.jsonArray.size - 2].jsonObject
+        assertEquals("assistant", assistantMessage["role"]!!.jsonPrimitive.content)
+        assertTrue(!assistantMessage.containsKey("content"), "empty narration must serialize as absent: $assistantMessage")
+    }
+
+    @Test
+    fun aBlankTransportErrorFallsBackToTheWrapperClassName() = runTest {
+        val oai = OAIService(
+            MockEngine { _ -> throw RuntimeException("") }
+        )
+        val error = assertFailsWith<OAIError.InvalidResponse> {
+            oai.generate(messages, "sys", remoteEngineSettings(), onChunk = { })
+        }
+        // The client wraps handler failures in its own exception; a blank message
+        // means the reason falls back to that wrapper's class name.
+        assertEquals("OpenAIHttpException", error.reason)
     }
 
     @Test

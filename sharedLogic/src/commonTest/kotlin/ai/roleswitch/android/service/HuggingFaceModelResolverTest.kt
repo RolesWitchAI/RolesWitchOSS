@@ -208,6 +208,25 @@ class HuggingFaceModelResolverTest {
         assertEquals(777L, model.sizeBytes)
     }
 
+    @Test
+    fun aLinkThatIsNotARepositoryIsRejectedBeforeAnyRequest() = runTest {
+        var requests = 0
+        serve { _ ->
+            requests++
+            respondJson("{}")
+        }
+        val error = awaitResolveError("just-one-word")
+        assertTrue(error.message!!.contains("not a HuggingFace model link"), error.message)
+        assertEquals(0, requests)
+    }
+
+    @Test
+    fun anUnexpectedHttpStatusNamesTheCode() = runTest {
+        serve { _ -> respondErrorJson(HttpStatusCode.BadGateway, """{"error":"upstream"}""") }
+        val error = awaitResolveError("owner/repo")
+        assertTrue(error.message!!.contains("HuggingFace returned HTTP 502"), error.message)
+    }
+
     private suspend fun awaitResolveError(url: String): HuggingFaceModelResolver.ResolveException =
         kotlin.test.assertFailsWith<HuggingFaceModelResolver.ResolveException> {
             HuggingFaceModelResolver.resolve(url)

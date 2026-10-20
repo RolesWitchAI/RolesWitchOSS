@@ -208,6 +208,18 @@ class AppDatabaseTest {
     }
 
     @Test
+    fun theToolSelectionToleratesAVanishedRow() = runTest {
+        db.seedDefaultThread(locale = "en")
+        val thread = db.getAllThreads().first()
+        db.deleteThread(thread)
+
+        // The row disappeared mid-edit; the stale snapshot is used as the base and
+        // the (no-op) update must not throw.
+        db.applyThreadToolSelection(thread, listOf("late-id"))
+        assertTrue(db.getAllThreads().isEmpty())
+    }
+
+    @Test
     fun clearAllDataWipesEveryTable() = runTest {
         db.seedDefaultThread(locale = "en")
         db.upsertMcpTool(id = null, name = "t", url = "u", token = "")

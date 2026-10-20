@@ -594,8 +594,8 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 
 ## Tests
 
-- **Tests exist.** `:sharedLogic` has ~220 tests across four source sets, and they
-  must stay passing:
+- **Tests exist.** `:sharedLogic` has ~290 tests per target across four source sets,
+  and they must stay passing:
   - `commonTest` (pure + service logic; runs on JVM, Android host, and iOS simulator),
   - `jvmTest` (real-Room suites: seeding, the 6→27 migration chain, the Swift-facing
     `AppContainer` facades),
@@ -635,7 +635,12 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
   touch JVM APIs (it compiles for three targets).
 - **Coverage is JaCoCo, not Kover**: Kover hard-fails on the AGP 9 KMP plugin ("requires
   extension with name 'android'"). `./gradlew :sharedLogic:sharedCoverage` reports on
-  the JVM compilation with Room's generated `*_Impl`/adapter classes excluded;
+  the JVM compilation with Room's generated `*_Impl`/adapter classes and the
+  compiler-generated never-invoked bridges (`InferenceEngine.DefaultImpls`, the
+  `AppDatabaseConstructor` expect bridge) excluded — ~99.6% lines / ~98.6% instructions;
+  the residual is coroutine state-machine resume legs, `runCatching` failure arms that
+  are dead by construction (nothing under them can throw), the resolver's
+  process-locked default-client branch, and the JVM-unreachable PDF truncation legs.
   Kotlin/Native cannot be instrumented (iOS tests run green but report no numbers).
 - iOS factory tests write into the simulator's persisted container — use fresh ids
   per run, or a rerun hits `UNIQUE constraint failed`.

@@ -201,6 +201,45 @@ class McpServiceTest {
     }
 
     @Test
+    fun nonStringContentFieldsAreSkippedNotFatal() = runTest {
+        val service = mcpService(
+            callBody = """{"content":[{"type":5},{"type":"text","text":null},{"type":"text","text":"real text"}]}"""
+        )
+        val session = service.openSession(listOf(tool("srv")))
+        assertEquals("real text", session.call("srv__weather_lookup", "{}"))
+        session.close()
+    }
+
+    @Test
+    fun aFailingToolsListAfterAGoodHandshakeSkipsTheServer() = runTest {
+        val service = McpService(
+            HttpClient(
+                MockEngine { request ->
+                    when (request.rpcMethod()) {
+                        "initialize" -> respondJson("""{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-06-18"}}""")
+                        "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                        else -> respondErrorJson(HttpStatusCode.InternalServerError, "listing broken")
+                    }
+                }
+            )
+        )
+        val session = service.openSession(listOf(tool("half-up")))
+        assertTrue(session.isEmpty) // handshake fine, tools/list broken: skipped, not fatal
+        session.close()
+    }
+
+    @Test
+    fun aFailureWithNoMessageIsNamedByItsClass() = kotlinx.coroutines.runBlocking {
+        val service = McpService(
+            HttpClient(MockEngine { _ -> throw IllegalStateException() })
+        )
+        val error = assertFailsWith<McpError> {
+            service.discoverToolNames("http://mcp.test/mcp", "")
+        }
+        assertTrue(error.message!!.contains("IllegalStateException"), error.message)
+    }
+
+    @Test
     fun hostileLabelsFallBackToNeutralNames() = runTest {
         val service = mcpService(toolsBody = """{"tools":[{"name":"!!!"}]}""")
         val session = service.openSession(listOf(tool("***")))

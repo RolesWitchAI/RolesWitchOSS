@@ -116,6 +116,52 @@ class MessageThreadTest {
         }
     }
 
+    /** Null is the other value every nullable column carries — and the leg of
+     *  hashCode's `?: 0` that non-null variants can never reach. */
+    @Test
+    fun nullColumnsParticipateInEqualityToo() {
+        val nullVariants: List<Pair<String, MessageThread>> = listOf(
+            "customApiUrl" to base.copy(customApiUrl = null),
+            "customApiKey" to base.copy(customApiKey = null),
+            "customModel" to base.copy(customModel = null),
+            "customEnableVision" to base.copy(customEnableVision = null),
+            "customMessageLimit" to base.copy(customMessageLimit = null),
+            "customTemperature" to base.copy(customTemperature = null),
+            "customTopP" to base.copy(customTopP = null),
+            "customN" to base.copy(customN = null),
+            "customMaxCompletionTokens" to base.copy(customMaxCompletionTokens = null),
+            "customPresencePenalty" to base.copy(customPresencePenalty = null),
+            "customFrequencyPenalty" to base.copy(customFrequencyPenalty = null),
+            "customReasoningEffort" to base.copy(customReasoningEffort = null),
+            "customLanguage" to base.copy(customLanguage = null),
+            "customVoice" to base.copy(customVoice = null),
+            "customRequireOnDeviceVoice" to base.copy(customRequireOnDeviceVoice = null),
+            "customUseVosk" to base.copy(customUseVosk = null),
+            "customAllowInterruptions" to base.copy(customAllowInterruptions = null),
+            "customEmbedTime" to base.copy(customEmbedTime = null),
+            "customKeepLastAttachment" to base.copy(customKeepLastAttachment = null),
+            "customUseSystemTts" to base.copy(customUseSystemTts = null),
+            "customUseExternalTts" to base.copy(customUseExternalTts = null),
+            "customExternalTtsVoice" to base.copy(customExternalTtsVoice = null),
+            "customExternalTtsAPI" to base.copy(customExternalTtsAPI = null),
+            "customExternalTtsKey" to base.copy(customExternalTtsKey = null),
+            "customStreamingMode" to base.copy(customStreamingMode = null),
+            "customToolIds" to base.copy(customToolIds = null),
+            "customUseLiteRt" to base.copy(customUseLiteRt = null),
+            "customLitertModel" to base.copy(customLitertModel = null),
+            "customLitertTopK" to base.copy(customLitertTopK = null),
+            "customLitertTopP" to base.copy(customLitertTopP = null),
+            "customLitertTemperature" to base.copy(customLitertTemperature = null),
+            "customLitertMaxTokens" to base.copy(customLitertMaxTokens = null),
+            "customLitertAccelerator" to base.copy(customLitertAccelerator = null),
+            "customLitertEnableThinking" to base.copy(customLitertEnableThinking = null)
+        )
+        nullVariants.forEach { (field, variant) ->
+            assertNotEquals(base, variant, "$field = null does not participate in equals")
+            assertNotEquals(base.hashCode(), variant.hashCode(), "$field = null does not participate in hashCode")
+        }
+    }
+
     @Test
     fun anIdenticalCopyComparesEqualWithTheSameHash() {
         assertEquals(base, base.copy())

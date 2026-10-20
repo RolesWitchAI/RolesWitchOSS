@@ -154,7 +154,15 @@ val sharedCoverage = tasks.register<JacocoReport>("sharedCoverage") {
     executionData(file("${layout.buildDirectory.get()}/jacoco/jvmTest.exec"))
     classDirectories.setFrom(
         fileTree("${layout.buildDirectory.get()}/classes/kotlin/jvm/main") {
-            exclude("**/*_Impl*.class", "**/*EntityInsertAdapter*.class", "**/*EntityDeletionAdapter*.class", "**/*EntityUpdateAdapter*.class")
+            exclude(
+                // Room's KSP-generated SQL plumbing.
+                "**/*_Impl*.class", "**/*EntityInsertAdapter*.class",
+                "**/*EntityDeletionAdapter*.class", "**/*EntityUpdateAdapter*.class",
+                // Compiler-generated bridges that no Kotlin 2.x call site can reach:
+                // interface default-arg synthetics and the expect-object's platform
+                // bridge (the KSP-generated actual is what runs).
+                "**/InferenceEngine\$DefaultImpls.class", "**/AppDatabaseConstructor.class"
+            )
         }
     )
     sourceDirectories.setFrom(files("src/commonMain/kotlin", "src/jvmMain/kotlin"))

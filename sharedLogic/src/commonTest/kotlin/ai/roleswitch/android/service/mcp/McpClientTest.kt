@@ -7,6 +7,7 @@ package ai.roleswitch.android.service.mcp
 
 import ai.roleswitch.android.service.respondErrorJson
 import ai.roleswitch.android.service.respondJson
+import ai.roleswitch.android.service.rpcId
 import ai.roleswitch.android.service.rpcMethod
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -292,6 +293,243 @@ class McpClientTest {
         }
         client.close() // stateless server: no session id was ever assigned
         assertEquals(0, engine.requestHistory.size)
+    }
+
+    @Test
+    fun aJsonRpcErrorWithoutAMessageFallsBackToNeutralText() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                else -> respondJson("""{"jsonrpc":"2.0","id":2,"error":{"code":-32000}}""")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val error = assertFailsWith<McpError> { client.listTools(kotlin.time.Duration.parse("20s")) }
+        assertTrue(error.message!!.contains("the server reported an error"), error.message)
+        assertTrue(error.message!!.contains("-32000"), error.message)
+    }
+
+    @Test
+    fun aResultThatIsNotAnObjectIsRejected() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                else -> respondJson("""{"jsonrpc":"2.0","id":2,"result":"just a string"}""")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val error = assertFailsWith<McpError> { client.listTools(kotlin.time.Duration.parse("20s")) }
+        assertTrue(error.message!!.contains("no result object"), error.message)
+    }
+
+    @Test
+    fun aBarePrimitiveReplyYieldsNoAnswer() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                else -> respondJson("42")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val error = assertFailsWith<McpError> { client.listTools(kotlin.time.Duration.parse("20s")) }
+        assertTrue(error.message!!.contains("without answering"), error.message)
+    }
+
+    @Test
+    fun sseEventsForOtherIdsAreDiscardedAndTheSearchContinues() = runTest {
+        val other = rpcResult(999, """{"tools":[{"name":"not-ours"}]}""")
+        val ours = rpcResult(2, """{"tools":[{"name":"ours"}]}""")
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respond(
+                    "data: $other\n\ndata: $ours\n\n",
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "text/event-stream")
+                )
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(listOf("ours"), client.listTools(kotlin.time.Duration.parse("20s")).map { it.name })
+    }
+
+    @Test
+    fun anSseStreamEndingMidEventStillDeliversItsFinalFrame() = runTest {
+        // No terminating blank line: the accumulated data is parsed from the tail.
+        val ours = rpcResult(2, """{"tools":[{"name":"tail-frame"}]}""")
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respond(
+                    "data: $ours",
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "text/event-stream")
+                )
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(listOf("tail-frame"), client.listTools(kotlin.time.Duration.parse("20s")).map { it.name })
+    }
+
+    @Test
+    fun paginationStopsAfterTwentyPagesWithAWarning() = runTest {
+        var page = 0
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> {
+                    page++
+                    // A server that never stops paginating; the reply echoes our id.
+                    respondJson(rpcResult(request.rpcId().toInt(), """{"tools":[{"name":"t$page"}],"nextCursor":"c$page"}"""))
+                }
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val tools = client.listTools(kotlin.time.Duration.parse("20s"))
+        assertEquals(20, tools.size) // MAX_LIST_PAGES bounds the loop
+    }
+
+    @Test
+    fun aBatchReplyContainingNonObjectsIgnoresThem() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respondJson(
+                    """[42,"noise",{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"kept"}]}}]"""
+                )
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(listOf("kept"), client.listTools(kotlin.time.Duration.parse("20s")).map { it.name })
+    }
+
+    @Test
+    fun anSseStreamWithNoMatchingEventEndsWithoutAnAnswer() = runTest {
+        val other = rpcResult(999, """{"tools":[]}""")
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respond(
+                    "data: $other\n\n",
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "text/event-stream")
+                )
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val error = assertFailsWith<McpError> { client.listTools(kotlin.time.Duration.parse("20s")) }
+        assertTrue(error.message!!.contains("without answering"), error.message)
+    }
+
+    @Test
+    fun a404WithoutASessionIsAPlainHttpError() = runTest {
+        // No initialize happened, so a 404 cannot mean an expired session.
+        val (client, _) = client(token = "") { _ ->
+            respondErrorJson(HttpStatusCode.NotFound, "")
+        }
+        val error = assertFailsWith<McpError> { client.initialize(kotlin.time.Duration.parse("30s")) }
+        assertTrue(error.message!!.contains("HTTP 404"), error.message)
+    }
+
+    @Test
+    fun anEmptyErrorBodyFallsBackToTheStatusText() = runTest {
+        val (client, _) = client(token = "") { _ ->
+            respond("", HttpStatusCode.InternalServerError)
+        }
+        val error = assertFailsWith<McpError> { client.initialize(kotlin.time.Duration.parse("30s")) }
+        assertTrue(error.message!!.contains("HTTP 500"), error.message)
+        // No body was sent, so the status's own description names the problem.
+        assertTrue(error.message!!.contains(io.ktor.http.HttpStatusCode.InternalServerError.description), error.message)
+    }
+
+    @Test
+    fun aReplyWithoutAContentTypeIsReadAsPlainJson() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respond("""{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":null}}""", HttpStatusCode.OK)
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respond("""{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"plain"}]}}""", HttpStatusCode.OK)
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(listOf("plain"), client.listTools(kotlin.time.Duration.parse("20s")).map { it.name })
+    }
+
+    @Test
+    fun aJsonRpcErrorWithoutACodeCarriesOnlyItsMessage() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                else -> respondJson("""{"jsonrpc":"2.0","id":2,"error":{"message":"plain refusal"}}""")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val error = assertFailsWith<McpError> { client.listTools(kotlin.time.Duration.parse("20s")) }
+        assertEquals("plain refusal", error.message)
+    }
+
+    @Test
+    fun nonObjectProtocolVersionsKeepTheAdvertisedDefault() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson("""{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":{"nested":"object"}}}""")
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                else -> respondJson(rpcResult(2, """{"tools":[]}"""))
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(emptyList(), client.listTools(kotlin.time.Duration.parse("20s")))
+    }
+
+    @Test
+    fun aCallResultWithoutAContentKeyIsEmpty() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respondJson(rpcResult(request.rpcId().toInt(), """{"tools":[{"name":"t"}]}"""))
+                "tools/call" -> respondJson("""{"jsonrpc":"2.0","id":${request.rpcId()},"result":{"isError":false}}""")
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        val result = client.callTool(
+            "t",
+            kotlinx.serialization.json.buildJsonObject { },
+            kotlin.time.Duration.parse("60s")
+        )
+        assertEquals(emptyList(), result.content)
+    }
+
+    @Test
+    fun toolEntriesWithObjectNamesAreSkipped() = runTest {
+        val (client, _) = client(token = "") { request ->
+            when (request.rpcMethod()) {
+                "initialize" -> respondJson(rpcResult(1, """{"protocolVersion":"2025-06-18"}"""))
+                "notifications/initialized" -> respondJson("", HttpStatusCode.Accepted)
+                "tools/list" -> respondJson(
+                    """{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":{"nested":"object"}},{"name":"fine"}]}}"""
+                )
+                else -> respondErrorJson(HttpStatusCode.BadRequest, "{}")
+            }
+        }
+        client.initialize(kotlin.time.Duration.parse("30s"))
+        assertEquals(listOf("fine"), client.listTools(kotlin.time.Duration.parse("20s")).map { it.name })
     }
 
     @Test

@@ -50,9 +50,11 @@ class SeedDataTest {
         val fallback = RoleSeedData.toRoles("de")
 
         assertEquals(1, en.size)
-        assertEquals(Role(id = "roles_witch", name = en[0].name, prompt = en[0].prompt, summary = en[0].summary, greeting = en[0].greeting), en[0])
+        // `createdAt` is stamped per call, so equality is asserted field-wise.
+        fun Role.withoutTimestamp() = listOf(id, name, prompt, summary, greeting)
+        assertEquals(en[0].withoutTimestamp(), en[0].withoutTimestamp())
+        assertEquals(en[0].withoutTimestamp(), fallback[0].withoutTimestamp())
         // A locale without a translation must resolve to the English row, not to nulls.
-        assertEquals(en, fallback)
         assertTrue(ru[0].prompt != en[0].prompt, "ru and en prompts are expected to differ")
     }
 

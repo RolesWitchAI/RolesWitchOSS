@@ -111,7 +111,6 @@ class SettingsManager(private val dataStore: DataStore<Preferences>) {
     private fun bool(key: Preferences.Key<Boolean>, default: Boolean): Boolean = snapshot[key] ?: default
     private fun str(key: Preferences.Key<String>, default: String): String = snapshot[key] ?: default
     private fun int(key: Preferences.Key<Int>, default: Int): Int = snapshot[key] ?: default
-    private fun flt(key: Preferences.Key<Float>, default: Float): Float = snapshot[key] ?: default
 
     private val _hasCompletedOnboarding = MutableStateFlow(bool(KEY_HAS_COMPLETED_ONBOARDING, false))
     val hasCompletedOnboarding: StateFlow<Boolean> = _hasCompletedOnboarding.asStateFlow()

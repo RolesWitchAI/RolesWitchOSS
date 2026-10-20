@@ -16,6 +16,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -182,5 +183,10 @@ class AppContainerTest {
     fun getAllThreadsListsWhatWasSeeded() = runTest {
         db.seedDefaultThread(locale = "en")
         assertEquals(listOf(RoleSeedData.DEFAULT_THREAD_ID), container.database.getAllThreads().map { it.threadId })
+        // The service properties are part of the container's public surface.
+        assertTrue(container.settingsManager.hasCompletedOnboarding.value == false)
+        assertNotNull(container.oaiService)
+        assertNotNull(container.llmService)
+        assertNotNull(container.mcpService)
     }
 }
