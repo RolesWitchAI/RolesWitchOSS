@@ -130,9 +130,25 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/iosApp-*
 
 ## Tests
 
+The shared module is tested per target — pick the one you're working on:
+
 ```shell
-./gradlew :sharedLogic:allTests
+./gradlew :sharedLogic:jvmTest                 # commonTest + jvmTest (fast, no device)
+./gradlew :sharedLogic:testAndroidHostTest     # commonTest on the Android host + androidHostTest
+./gradlew :sharedLogic:iosSimulatorArm64Test   # commonTest + iosTest on the simulator
 ```
+
+LLM/MCP/TTS/HuggingFace servers are faked with Ktor's `MockEngine` — no network, no
+keys. Room behaviour (seeding, the 6→27 migration chain) runs against a real database
+through the bundled SQLite driver in `jvmTest`.
+
+Coverage of the JVM-compiled shared code (`commonMain` + `jvmMain`; Room's generated
+adapters excluded) comes with:
+
+```shell
+./gradlew :sharedLogic:sharedCoverage   # build/reports/jacoco/sharedCoverage/html/index.html
+```
+
 
 ## Build notes
 

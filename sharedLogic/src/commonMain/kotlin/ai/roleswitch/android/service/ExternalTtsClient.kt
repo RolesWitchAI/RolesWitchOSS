@@ -15,6 +15,7 @@ import com.aallam.openai.client.OpenAI
 import com.aallam.openai.client.OpenAIConfig
 import com.aallam.openai.client.OpenAIHost
 import com.aallam.openai.client.RetryStrategy
+import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
@@ -50,7 +51,14 @@ class ExternalTtsNotConfiguredException : Exception("External TTS server is not 
  * iOS (where a Swift `AVPlayer` plays the same bytes — ADTS AAC, which the strict
  * `AACAudioFile` parser behind `AVAudioPlayer` rejects) without any Kotlin-side adapter.
  */
-class ExternalTtsClient {
+class ExternalTtsClient(
+    /**
+     * Explicit ktor engine for the speech server client — the same test seam
+     * [OAIService] carries. Null in production (platform default engine); tests
+     * inject a `MockEngine` serving canned `/v1/audio/speech` replies.
+     */
+    private val engine: HttpClientEngine? = null
+) {
 
     /**
      * @param endpoint the OpenAI-compatible base URL, e.g. `http://0.0.0.0:9000/v1`.
@@ -76,7 +84,8 @@ class ExternalTtsClient {
             // One attempt, no retries, exactly like OAIService.fetchModels: the failure
             // modes here (server down, 401, bad voice) are not transient, and retrying
             // them merely multiplies the wait before the error is shown.
-            retry = RetryStrategy(maxRetries = 0)
+            retry = RetryStrategy(maxRetries = 0),
+            engine = engine
         )
         val openAI = OpenAI(config)
 

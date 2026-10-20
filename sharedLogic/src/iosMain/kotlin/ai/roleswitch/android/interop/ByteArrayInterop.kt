@@ -28,11 +28,20 @@ import platform.posix.memcpy
  * `toKotlinByteArray()` names the old loops had, so no Swift call site changed.
  */
 
-/** Copies the array into a new `NSData` (`initWithBytes:length:` copies its buffer). */
+/** Copies the array into a new `NSData` (`initWithBytes:length:` copies its buffer).
+ *
+ *  An empty array is special-cased: `addressOf(0)` on a zero-length array is an
+ *  out-of-bounds access, so pinning-and-reading a first byte that does not exist
+ *  crashed (an empty photo attachment hit this in production code paths).
+ */
 @OptIn(ExperimentalForeignApi::class)
 fun ByteArray.toNSData(): NSData =
-    usePinned { pinned ->
-        NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
+    if (isEmpty()) {
+        NSData.create(bytes = null, length = 0uL)
+    } else {
+        usePinned { pinned ->
+            NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
+        }
     }
 
 /** Copies `data`'s bytes into a new array. */

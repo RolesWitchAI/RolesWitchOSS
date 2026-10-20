@@ -609,15 +609,21 @@ class SettingsManager(private val dataStore: DataStore<Preferences>) {
      * Wipes every persisted preference and returns the in-memory state to its
      * defaults.
      *
-     * Suspends until the store is actually cleared **before** touching
-     * [hasCompletedOnboarding]: flipping that flag sends the UI straight back
-     * to onboarding, which immediately writes settings of its own. If the clear
-     * were still in flight it could land afterwards and wipe them — the app
-     * would look reset-and-reconfigured until the next launch, when the stale
-     * cleared state reappeared.
+     * The clear is queued through the same single-writer lane every setter uses (and
+     * joined), not taken directly: `writeMutex` is fair, but the caller of `reset`
+     * races the *dispatch* of writes queued moments earlier, and winning that race
+     * cleared the store first — the queued write then landed after the wipe and a
+     * "reset" app came back with, say, its old language. FIFO through `writeScope`
+     * puts the clear strictly behind every write already requested.
+     *
+     * Only then is [hasCompletedOnboarding] flipped: that sends the UI straight back
+     * to onboarding, which immediately writes settings of its own. If the clear were
+     * still in flight it could land afterwards and wipe them — the app would look
+     * reset-and-reconfigured until the next launch, when the stale cleared state
+     * reappeared.
      */
     suspend fun reset() {
-        writeMutex.withLock { dataStore.edit { it.clear() } }
+        writeScope.launch { writeMutex.withLock { dataStore.edit { it.clear() } } }.join()
         _hasCompletedOnboarding.value = false
         _selectedModel.value = ""
         _openaiAPI.value = ""

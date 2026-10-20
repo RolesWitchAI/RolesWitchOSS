@@ -55,6 +55,8 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 openai-client = { group = "com.aallam.openai", name = "openai-client", version.ref = "openai" }
 ktor-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+# MockEngine — fake LLM / MCP / TTS / HuggingFace servers in commonTest.
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 
 # Room Database
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -101,6 +103,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 # KMP commonMain-only libs
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 

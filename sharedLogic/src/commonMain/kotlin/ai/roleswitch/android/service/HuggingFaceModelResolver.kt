@@ -6,6 +6,7 @@
 package ai.roleswitch.android.service
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
@@ -46,11 +47,30 @@ object HuggingFaceModelResolver {
     class ResolveException(message: String) : Exception(message)
 
     /**
+     * Test seam: when set before the first [resolve], the HTTP client is built on this
+     * engine instead of the platform default, so tests can serve canned repository
+     * metadata from a `MockEngine`. Internal — production never touches it, and the
+     * object stays an object because Swift reaches it as `HuggingFaceModelResolver.shared`.
+     */
+    internal var testEngine: HttpClientEngine? = null
+
+    private val http: HttpClient by lazy {
+        testEngine?.let { engine ->
+            HttpClient(engine) {
+                install(HttpTimeout) {
+                    connectTimeoutMillis = TIMEOUT_MS
+                    requestTimeoutMillis = TIMEOUT_MS
+                }
+            }
+        } ?: defaultHttpClient()
+    }
+
+    /**
      * One client for the resolver. Ktor is main-safe, so unlike the Android-only
      * predecessor there is no `Dispatchers.IO` hop: the two requests per resolve are
      * small, and the caller is a UI dialog that is already suspended awaiting the result.
      */
-    private val http = HttpClient {
+    private fun defaultHttpClient() = HttpClient {
         install(HttpTimeout) {
             connectTimeoutMillis = TIMEOUT_MS
             requestTimeoutMillis = TIMEOUT_MS
