@@ -245,11 +245,11 @@ thing; settling on a page switches the model in place.
   through a relative `../../../../cubism/...` path from `androidApp/src/main/cpp/`, so
   the layout is load-bearing. NDK/CMake versions are pinned in
   `androidApp/build.gradle.kts` to what the old repo used. Model weights are committed
-  APK assets (`androidApp/src/main/assets/<id>/`, four models — the old repo's
-  `shizuku` was never selectable, and `rice_pro_en` and `haru_greeter_pro_jp` were
-  dropped from this port on purpose; a device still storing either id degrades to the
-  photo through the -1 fallback, no migration involved — nor is the background-image
-  feature or its `hall.png` ported). `CubismBridge.setContext(this)` in `RolesWitchApp.onCreate` feeds
+  APK assets (`androidApp/src/main/assets/<id>/`, three models — the old repo's
+  `shizuku` was never selectable, and `rice_pro_en`, `haru_greeter_pro_jp` and
+  `mao_pro_en` were dropped from this port on purpose; a device still storing any of
+  them degrades to the photo through the -1 fallback, no migration involved — nor is
+  the background-image feature or its `hall.png` ported). `CubismBridge.setContext(this)` in `RolesWitchApp.onCreate` feeds
   the JNI
   asset loader — the bridge's `JNI_OnLoad` hard-codes the
   `ai/roleswitch/android/service/CubismBridge` class name, so moving that class breaks

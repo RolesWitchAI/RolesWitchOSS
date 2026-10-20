@@ -44,8 +44,7 @@ object Live2dCharacters {
     val all = listOf(
         Live2dCharacter("hibiki", "Hibiki"),
         Live2dCharacter("haru", "Haru"),
-        Live2dCharacter("hiyori_pro_en", "Hiyori"),
-        Live2dCharacter("mao_pro_en", "Mao")
+        Live2dCharacter("hiyori_pro_en", "Hiyori")
     )
 
     /** Index into the native `ModelDir[]`, or -1 when [id] is not a known character. */
@@ -98,17 +97,6 @@ private val modelMotionConfigs = listOf(
         speaking = listOf("TapBody" to 3),
         thinking = listOf("Idle" to 3),
         listening = listOf("Idle" to 3),
-        callStart = "TapBody" to 0,
-        tap = "TapBody" to 0,
-        speakingDelayMs = 3000,
-        thinkingDelayMs = 4000,
-        listeningDelayMs = 5000
-    ),
-    // mao_pro_en: Idle(1), TapBody(6)
-    MotionConfig(
-        speaking = listOf("TapBody" to 6),
-        thinking = listOf("Idle" to 1),
-        listening = listOf("Idle" to 1),
         callStart = "TapBody" to 0,
         tap = "TapBody" to 0,
         speakingDelayMs = 3000,
