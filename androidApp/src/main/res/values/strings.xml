@@ -265,6 +265,9 @@
     <string name="profile">Profile</string>
     <string name="remove_avatar">Remove avatar</string>
     <string name="change_image">Change image</string>
+    <!-- Live2D character (Android only): chosen from the avatar sheet, picked on its own screen -->
+    <string name="use_character">Use Character</string>
+    <string name="character">Character</string>
     <string name="discard_changes">Discard changes?</string>
     <string name="discard">Discard</string>
 

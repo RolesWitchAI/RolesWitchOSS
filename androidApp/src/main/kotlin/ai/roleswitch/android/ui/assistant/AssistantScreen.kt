@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -64,6 +65,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -71,6 +73,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import ai.roleswitch.android.RolesWitchApp
 import ai.roleswitch.android.ui.components.KeepScreenOn
+import ai.roleswitch.android.ui.components.Live2DView
+import ai.roleswitch.android.ui.components.Live2dCharacters
 import ai.roleswitch.android.ui.components.LitertEngineSyncEffect
 import ai.roleswitch.android.ui.components.LitertWarmUpOverlay
 import ai.roleswitch.android.ui.components.rememberPermissionRequester
@@ -431,7 +435,8 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                             isThinking = isThinking,
                             isSpeaking = ttsIsSpeaking,
                             isMuted = micIsOff,
-                            lightMode = true
+                            lightMode = true,
+                            maxLines = 4
                         )
                     }
 
@@ -476,6 +481,10 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
+            // The thread's Live2D character, when it has one — it replaces the photo
+            // avatar for the whole call. Index is -1 for a null or unknown `cubismId`
+            // (a registry change must never crash a call), which falls back to the photo.
+            val characterIndex = Live2dCharacters.indexOf(currentThread?.cubismId)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -483,13 +492,74 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Scrollable content area
+            if (characterIndex >= 0) {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
+                    modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // The GL surface draws over the window inside its own bounds
+                    // (setZOrderOnTop), so the indicator and lyrics live *below* it,
+                    // not on top of it.
+                    Live2DView(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        modelIndex = characterIndex,
+                        isRecording = isRecording,
+                        isSpeaking = ttsIsSpeaking,
+                        isThinking = isThinking,
+                        isListening = isListening && !ttsIsSpeaking && !isThinking
+                    )
+
+                    // Recording indicator
+                    AnimatedVisibility(visible = isListening && !isMuted && !isVideoCallActive) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            PulsingDot()
+                            Text(
+                                stringResource(R.string.listening),
+                                fontSize = 12.sp,
+                                color = Color.Red,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    if (isRecording && !isVideoCallActive) {
+                        // Exactly two lines, always. A lyrics area that grows or
+                        // shrinks with the text resizes the character's weight(1f)
+                        // area with every turn — and the GL surface rescales with
+                        // its view bounds, which read as the character "resizing
+                        // over and over" while it spoke. minLines as well as
+                        // maxLines, so even a one-line state holds the height.
+                        ConversationLyricsView(
+                            userMessage = humanMessage,
+                            assistantMessage = assistantMessage,
+                            isThinking = isThinking,
+                            isSpeaking = ttsIsSpeaking,
+                            isMuted = micIsOff,
+                            minLines = 2,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            onStopTtsAndResumeStt = {
+                                ttsService.stop()
+                                speechService.resumeListening()
+                            }
+                        )
+                    }
+                }
+            } else {
+            // Scrollable content area
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                     ProfileCircle(
                         name = currentThreadTitle,
                         avatarBytes = currentThread?.avatarBytes
@@ -527,6 +597,7 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                         )
                     }
                 }
+            } // character / photo branch
 
             // Bottom control buttons — fixed at bottom
             Row(
@@ -714,6 +785,9 @@ fun ConversationLyricsView(
     isSpeaking: Boolean,
     isMuted: Boolean = false,
     lightMode: Boolean = false,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip,
     onStopTtsAndResumeStt: () -> Unit = {}
 ) {
     val displayText = when {
@@ -752,7 +826,9 @@ fun ConversationLyricsView(
                     modifier
                 }
             },
-        maxLines = if (lightMode) 4 else Int.MAX_VALUE
+        maxLines = maxLines,
+        minLines = minLines,
+        overflow = overflow
     )
 }
 

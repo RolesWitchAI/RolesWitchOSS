@@ -8,6 +8,7 @@ package ai.roleswitch.android
 import android.app.Application
 import ai.roleswitch.android.data.database.AppDatabase
 import ai.roleswitch.android.data.database.getAppDatabase
+import ai.roleswitch.android.service.CubismBridge
 import ai.roleswitch.android.service.LLMService
 import ai.roleswitch.android.service.LiteRtModelDownloader
 import ai.roleswitch.android.service.LitertModels
@@ -109,6 +110,10 @@ class RolesWitchApp : Application() {
         // `PDFBoxResourceLoader`; without this one-time init the first PDF send crashes
         // with `ExceptionInInitializerError: GlyphList '.../glyphlist.txt' not found`.
         initializePdfBox(this)
+
+        // Live2D Cubism: the JNI bridge loads model/shader files from assets through
+        // this context. Safe to set before any Live2D view exists.
+        CubismBridge.setContext(this)
 
         database = getAppDatabase(this)
         settingsManager = getSettingsManager(this)

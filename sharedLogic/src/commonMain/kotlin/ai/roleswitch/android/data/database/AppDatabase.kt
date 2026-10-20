@@ -32,7 +32,7 @@ import kotlin.random.Random
 
 @Database(
     entities = [Message::class, MessageThread::class, Role::class, McpTool::class],
-    version = 27,
+    version = 28,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -206,6 +206,17 @@ abstract class AppDatabase : RoomDatabase() {
     suspend fun updateThreadAvatar(thread: MessageThread, avatarBytes: ByteArray?) {
         messageThreadDao().update(
             thread.copy(avatarBytes = avatarBytes, updatedAt = Clock.System.now().toEpochMilliseconds())
+        )
+    }
+
+    /**
+     * Updates the Live2D character of an existing thread. A null [cubismId] puts the
+     * thread back on its [MessageThread.avatarBytes] photo. Android-only feature; the
+     * column simply stays null on iOS.
+     */
+    suspend fun updateThreadCubismId(thread: MessageThread, cubismId: String?) {
+        messageThreadDao().update(
+            thread.copy(cubismId = cubismId, updatedAt = Clock.System.now().toEpochMilliseconds())
         )
     }
 
@@ -1104,6 +1115,23 @@ abstract class AppDatabase : RoomDatabase() {
                 connection.prepare(
                     "ALTER TABLE `message_threads_new` RENAME TO `message_threads`"
                 ).use { it.step() }
+            }
+        }
+
+        /**
+         * Adds the per-thread `cubismId` column to `message_threads` — the id of the
+         * bundled Live2D character this chat presents itself through on a call. Null
+         * (what every existing row gets) means "use the avatar photo", which is exactly
+         * the pre-feature behaviour; non-null means the call screen renders the model.
+         * Android-only feature, but the schema is shared, so the column exists on both
+         * platforms and simply stays null on iOS.
+         *
+         * A plain `ADD COLUMN`, like the other nullable single-column migrations.
+         * Registered on both Android and iOS factories so user data survives v27 → v28.
+         */
+        val MIGRATION_27_28: Migration = object : Migration(27, 28) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.prepare("ALTER TABLE message_threads ADD COLUMN cubismId TEXT").use { it.step() }
             }
         }
     }

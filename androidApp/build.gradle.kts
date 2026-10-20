@@ -13,6 +13,16 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 12
         versionName = "1.1"
+
+        // Live2D Cubism Core ships as static libs for these two ABIs only.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+        externalNativeBuild {
+            cmake {
+                arguments("-DCMAKE_BUILD_TYPE=Release")
+            }
+        }
     }
 
     signingConfigs {
@@ -58,6 +68,17 @@ android {
         // BuildConfig.DEBUG gates the stress seed in SeedDefaults.kt. Off by default
         // since AGP 8, so it has to be requested explicitly.
         buildConfig = true
+    }
+
+    // Live2D Cubism (characters). The SDK is vendored at the repo root — the same
+    // layout the RolesWitchAndroid repo used, which the CMakeLists' relative path
+    // (`../../../../cubism/...`) depends on. Pinned NDK/CMake match that repo.
+    ndkVersion = "27.0.12077973"
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 }
 
