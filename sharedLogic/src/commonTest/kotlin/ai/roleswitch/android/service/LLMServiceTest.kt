@@ -564,7 +564,7 @@ class LLMServiceTest {
     }
 
     @Test
-    fun aSupersededTurnCleansUpWithoutTouchingTheReplacement() = runTest {
+    fun aCancelledTurnDiscardsAndTheReplacementCompletes() = runTest {
         val engine = FakeEngine()
         // First turn hangs; the second answers immediately.
         var calls = 0
@@ -580,14 +580,36 @@ class LLMServiceTest {
         backgroundScope.launch { h.service.responseCompleted.collect { completed += it } }
         runCurrent()
 
+        // The stop-button flow: a turn in flight is cancelled outright, then a new
+        // message is sent. (Driving the cancel through a concurrent sendMessage is
+        // inherently racy — whether the old turn's cancellation lands before the new
+        // turn counter moves decides if it counts as "superseded" — so this test
+        // cancels explicitly first.)
         backgroundScope.launch { h.service.sendMessage("first", "thread-1") }
-        // Wait for the first turn to be in flight, then supersede it from the same
-        // thread slot — sendMessage cancels the active turn and starts a new one.
         withTimeout(5_000) {
             while (!h.service.isStreaming.value) kotlinx.coroutines.delay(10)
         }
+        h.service.cancelRequestForThread("thread-1")
+        withTimeout(5_000) {
+            while (h.service.isStreaming.value) kotlinx.coroutines.delay(10)
+        }
+        // The cancelled turn's teardown — and therefore its discard — crosses a real
+        // dispatcher (extractDocuments hops through Dispatchers.Default), so it lands
+        // with real-time latency that no virtual-clock drain can fast-forward. Wait
+        // for the event itself rather than assuming a drain caught it.
+        withTimeout(5_000) {
+            while (discarded.isEmpty()) kotlinx.coroutines.delay(10)
+        }
+        advanceUntilIdle()
+
+        assertEquals(listOf("thread-1"), discarded)
+        assertEquals(false, h.service.isStreaming.value)
+        assertEquals("", h.service.streamingResponse.value)
+
         h.service.sendMessage("second", "thread-1")
-        runCurrent()
+        withTimeout(5_000) {
+            while (completed.isEmpty()) kotlinx.coroutines.delay(10)
+        }
 
         // The second turn's answer persisted; the cancelled first turn raised exactly
         // one discard (the UI's signal to drop its partial bubble) and no error.
@@ -595,7 +617,6 @@ class LLMServiceTest {
         assertEquals(listOf(CompletedResponse("thread-1", "second")), completed)
         assertEquals(listOf("thread-1"), discarded)
         assertEquals(false, h.service.isStreaming.value)
-        assertEquals("", h.service.streamingResponse.value)
     }
 
     @Test

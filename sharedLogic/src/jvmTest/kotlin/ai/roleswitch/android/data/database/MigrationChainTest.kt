@@ -169,7 +169,8 @@ class MigrationChainTest {
         AppDatabase.MIGRATION_23_24,
         AppDatabase.MIGRATION_24_25,
         AppDatabase.MIGRATION_25_26,
-        AppDatabase.MIGRATION_26_27
+        AppDatabase.MIGRATION_26_27,
+        AppDatabase.MIGRATION_27_28
     )
 
     @Test
@@ -247,12 +248,17 @@ class MigrationChainTest {
         AppDatabase.MIGRATION_26_27.migrate(connection)
         assertTrue("customVoiceSpeed" !in columns("message_threads"))
 
+        AppDatabase.MIGRATION_27_28.migrate(connection)
+        // The Live2D character column: nullable, so every existing row keeps the photo.
+        assertTrue("cubismId" in columns("message_threads"))
+        assertEquals(null, scalar("SELECT cubismId FROM message_threads WHERE threadId = 't-1'"))
+
         // The whole chain must be gapless: each step's start is its predecessor's end.
         chain.zipWithNext().forEach { (earlier, later) ->
             assertEquals(earlier.endVersion, later.startVersion, "migration chain has a gap at ${later.startVersion}")
         }
         assertEquals(6, chain.first().startVersion)
-        assertEquals(27, chain.last().endVersion)
+        assertEquals(28, chain.last().endVersion)
 
         // And the data survived every rebuild.
         assertEquals("kept text", scalar("SELECT content FROM messages WHERE id = 'm-1'"))
@@ -317,7 +323,7 @@ class MigrationChainTest {
         fresh.close()
 
         connection = driver.open(dbPath)
-        exec("PRAGMA user_version = 27")
+        exec("PRAGMA user_version = 28")
         exec("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY, identity_hash TEXT)")
         exec("INSERT OR REPLACE INTO room_master_table (id, identity_hash) VALUES (42, '$hash')")
 

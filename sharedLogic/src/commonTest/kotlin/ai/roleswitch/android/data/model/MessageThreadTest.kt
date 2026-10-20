@@ -60,7 +60,8 @@ class MessageThreadTest {
         customLitertTemperature = "1.0",
         customLitertMaxTokens = "4000",
         customLitertAccelerator = "gpu",
-        customLitertEnableThinking = true
+        customLitertEnableThinking = true,
+        cubismId = "hibiki"
     )
 
     private val variants: List<Pair<String, MessageThread>> = listOf(
@@ -105,7 +106,8 @@ class MessageThreadTest {
         "customLitertTemperature" to base.copy(customLitertTemperature = "other"),
         "customLitertMaxTokens" to base.copy(customLitertMaxTokens = "other"),
         "customLitertAccelerator" to base.copy(customLitertAccelerator = "cpu"),
-        "customLitertEnableThinking" to base.copy(customLitertEnableThinking = false)
+        "customLitertEnableThinking" to base.copy(customLitertEnableThinking = false),
+        "cubismId" to base.copy(cubismId = "hiyori")
     )
 
     @Test
@@ -154,7 +156,8 @@ class MessageThreadTest {
             "customLitertTemperature" to base.copy(customLitertTemperature = null),
             "customLitertMaxTokens" to base.copy(customLitertMaxTokens = null),
             "customLitertAccelerator" to base.copy(customLitertAccelerator = null),
-            "customLitertEnableThinking" to base.copy(customLitertEnableThinking = null)
+            "customLitertEnableThinking" to base.copy(customLitertEnableThinking = null),
+            "cubismId" to base.copy(cubismId = null)
         )
         nullVariants.forEach { (field, variant) ->
             assertNotEquals(base, variant, "$field = null does not participate in equals")

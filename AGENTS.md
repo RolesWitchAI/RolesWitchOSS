@@ -690,7 +690,7 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 - **Tests exist.** `:sharedLogic` has ~290 tests per target across four source sets,
   and they must stay passing:
   - `commonTest` (pure + service logic; runs on JVM, Android host, and iOS simulator),
-  - `jvmTest` (real-Room suites: seeding, the 6→27 migration chain, the Swift-facing
+  - `jvmTest` (real-Room suites: seeding, the 6→28 migration chain, the Swift-facing
     `AppContainer` facades),
   - `androidHostTest` (the PDFBox `PdfTextExtractor` actual; enabled via
     `withHostTest { isReturnDefaultValues = true }` on the android target),
