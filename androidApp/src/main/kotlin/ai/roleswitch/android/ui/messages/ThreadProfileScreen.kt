@@ -173,6 +173,15 @@ fun ThreadProfileScreen(
         }
     }
 
+    fun disableCharacter() {
+        showSourcePicker = false
+        val current = thread ?: return
+        scope.launch {
+            app.database.updateThreadCubismId(current, null)
+            thread = current.copy(cubismId = null)
+        }
+    }
+
     fun save() {
         scope.launch {
             thread?.let { app.database.updateThreadTitleAndPrompt(it, title.trim(), prompt.trim()) }
@@ -183,6 +192,12 @@ fun ThreadProfileScreen(
     fun handleBack() {
         if (dirty) showDiscardDialog = true else onBack()
     }
+
+    // A character set on this thread takes over the call visuals; the photo stays
+    // underneath (it still shows in lists and chat headers) and comes back when the
+    // character is disabled from the avatar sheet. An id that no longer maps to a
+    // known character counts as "no character", like everywhere else.
+    val hasCharacter = Live2dCharacters.indexOf(thread?.cubismId) >= 0
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -219,9 +234,7 @@ fun ThreadProfileScreen(
             Spacer(Modifier.height(32.dp))
 
             // A character set on this thread takes over the call visuals; the photo
-            // stays underneath (it still shows in lists and chat headers) and comes
-            // back when the character is removed on the picker screen.
-            val hasCharacter = Live2dCharacters.indexOf(thread?.cubismId) >= 0
+            // stays underneath (it still shows in lists and chat headers).
             Box {
                 ThreadAvatar(
                     name = title.ifBlank { thread?.title ?: "" },
@@ -327,6 +340,16 @@ fun ThreadProfileScreen(
                         onNavigateToCharacter()
                     }
                 )
+                // The off switch, mirroring "Remove avatar": offered only while a
+                // character is actually set, and neutral rather than destructive —
+                // the photo underneath is kept, so "Use Character" simply reverses it.
+                if (hasCharacter) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(R.string.disable_character)) },
+                        leadingIcon = { Icon(Icons.Default.TheaterComedy, null) },
+                        onClick = ::disableCharacter
+                    )
+                }
                 if (thread?.avatarBytes != null) {
                     androidx.compose.material3.DropdownMenuItem(
                         text = {

@@ -183,8 +183,10 @@ Ported back from the old `RolesWitchAndroid` repo. A thread with a non-null
 the avatar photo; null keeps the photo. Chosen from the Profile screen's avatar sheet
 ("Use Character" → `CharacterPickerScreen`): characters are swiped through left/right
 and committed with the top-bar check (persisting then, like Profile's Save — back
-discards; a thread that never confirmed a character simply keeps its photo, there is
-deliberately no "use photo" exit on the picker). There **is** no
+discards). Turning a character *off* lives in the Profile screen's avatar sheet
+("Disable Character", offered only while a character is set — it nulls `cubismId` and
+the photo underneath returns; the picker itself has no "use photo" exit). There **is**
+no
 long-tap model cycling in the call any more — the character is picked once, on the
 Profile screen. The picker keeps **one** GL surface behind a transparent pager — the
 native manager cannot hold more than one model, so per-page `Live2DView`s are not a

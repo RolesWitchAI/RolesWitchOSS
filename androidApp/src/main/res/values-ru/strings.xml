@@ -269,6 +269,7 @@
     <string name="change_image">Изменить фото</string>
     <!-- Live2D-персонаж (только Android): выбирается в меню аватара, подбор — на отдельном экране -->
     <string name="use_character">Использовать персонажа</string>
+    <string name="disable_character">Отключить персонажа</string>
     <string name="character">Персонаж</string>
     <string name="discard_changes">Отменить изменения?</string>
     <string name="discard">Отменить</string>
