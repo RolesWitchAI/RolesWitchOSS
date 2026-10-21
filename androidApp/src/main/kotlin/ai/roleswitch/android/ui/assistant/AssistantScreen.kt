@@ -497,9 +497,38 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Fixed status slot, right under the header. The 28dp is on
+                    // AnimatedVisibility's own node, so it is held while hidden too
+                    // (the content merely fades inside it) — a toggling
+                    // "Listening…" can never re-measure, and so never resize, the
+                    // character area below.
+                    AnimatedVisibility(
+                        visible = isListening && !isMuted && !isVideoCallActive,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(28.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                PulsingDot()
+                                Text(
+                                    stringResource(R.string.listening),
+                                    fontSize = 12.sp,
+                                    color = Color.Red,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
                     // The GL surface draws over the window inside its own bounds
-                    // (setZOrderOnTop), so the indicator and lyrics live *below* it,
-                    // not on top of it.
+                    // (setZOrderOnTop); everything above and below is fixed-size,
+                    // so this flexible area is the only thing that ever changes.
                     Live2DView(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -511,46 +540,26 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                         isListening = isListening && !ttsIsSpeaking && !isThinking
                     )
 
-                    // Recording indicator
-                    AnimatedVisibility(visible = isListening && !isMuted && !isVideoCallActive) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            PulsingDot()
-                            Text(
-                                stringResource(R.string.listening),
-                                fontSize = 12.sp,
-                                color = Color.Red,
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
+                    Spacer(Modifier.height(8.dp))
+
+                    // Lyrics, fixed at the bottom — always composed, always
+                    // exactly two lines. Hiding them under the video dialog only
+                    // bought a resize of the character on the way back; the
+                    // dialog covers this whole window anyway.
+                    ConversationLyricsView(
+                        userMessage = humanMessage,
+                        assistantMessage = assistantMessage,
+                        isThinking = isThinking,
+                        isSpeaking = ttsIsSpeaking,
+                        isMuted = micIsOff,
+                        minLines = 2,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        onStopTtsAndResumeStt = {
+                            ttsService.stop()
+                            speechService.resumeListening()
                         }
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    if (isRecording && !isVideoCallActive) {
-                        // Exactly two lines, always. A lyrics area that grows or
-                        // shrinks with the text resizes the character's weight(1f)
-                        // area with every turn — and the GL surface rescales with
-                        // its view bounds, which read as the character "resizing
-                        // over and over" while it spoke. minLines as well as
-                        // maxLines, so even a one-line state holds the height.
-                        ConversationLyricsView(
-                            userMessage = humanMessage,
-                            assistantMessage = assistantMessage,
-                            isThinking = isThinking,
-                            isSpeaking = ttsIsSpeaking,
-                            isMuted = micIsOff,
-                            minLines = 2,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            onStopTtsAndResumeStt = {
-                                ttsService.stop()
-                                speechService.resumeListening()
-                            }
-                        )
-                    }
+                    )
                 }
             } else {
             // Scrollable content area

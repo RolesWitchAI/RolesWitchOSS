@@ -232,12 +232,15 @@ thing; settling on a page switches the model in place.
   is not up yet.
 - **`setZOrderOnTop(true)` puts the GL surface above the window inside its own bounds.**
   Nothing Compose may overlap the view's box: where the character is, the surface wins.
-  That is why the call screen puts the listening indicator and the lyrics *below* the
-  character area (the lyrics are pinned to exactly two lines — `minLines` as well as
-  `maxLines` — because a lyrics area that re-measures with the text resizes the
-  character's `weight(1f)` area with it, and the GL surface rescales with its view
-  bounds: the character visibly "resized over and over" while it spoke), and why the
-  picker's preview Surface contains only the view. The same Z order is why the surface
+  That is why the call screen keeps everything around the character in **fixed-size
+  slots** — a 28dp status line above (the height rides on `AnimatedVisibility`'s own
+  node so it is held while hidden too), the exactly-two-line lyrics (see below) at the
+  bottom, and the character's flexible `weight(1f)` area between them: any sibling
+  that re-measures on a state change (a toggling "Listening…", growing lyrics) resizes
+  the surface's box, and the GL surface rescales with its view bounds — the character
+  visibly "resized over and over" while it spoke. Same reason the lyrics are pinned
+  with `minLines` as well as `maxLines`. The picker's preview Surface contains only
+  the view for the same reason. The same Z order is why the surface
   does not die with composition: it is not part of the window, pop transitions do not
   animate it away, and `onDispose` only runs when a pop *finishes* — left alone, the
   character kept floating over the incoming screen for a beat after leaving ("ghosting").
