@@ -252,7 +252,12 @@ thing; settling on a page switches the model in place.
 - **The Cubism SDK is vendored at the repo root `cubism/`** — `CMakeLists.txt` reaches it
   through a relative `../../../../cubism/...` path from `androidApp/src/main/cpp/`, so
   the layout is load-bearing. NDK/CMake versions are pinned in
-  `androidApp/build.gradle.kts` to what the old repo used. Model weights are committed
+  `androidApp/build.gradle.kts` to what the old repo used. **`abiFilters` is
+  `arm64-v8a + x86_64` because Live2D ships no 32-bit ARM Core** (`Core/lib/android/`
+  has arm64-v8a, x86, x86_64 — no armeabi-v7a), so `libcubism-android.so` cannot be
+  built for v7a. The filter also strips vosk's armeabi-v7a/x86 slices, which is why
+  release 1.2 dropped ~3.1k 32-bit-only devices from the Play catalog — a deliberate
+  trade-off, not a bug. Model weights are committed
   APK assets (`androidApp/src/main/assets/<id>/`, three models — the old repo's
   `shizuku` was never selectable, and `rice_pro_en`, `haru_greeter_pro_jp` and
   `mao_pro_en` were dropped from this port on purpose; a device still storing any of
