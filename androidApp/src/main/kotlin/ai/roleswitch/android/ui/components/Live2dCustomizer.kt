@@ -223,13 +223,21 @@ private val hiyoriRegions = CharacterRegions(
         //    (its pieces are v≤0.41 or s≥0.47). The warm-white tubes mid-atlas are
         //    her SOCKS (over the legs) and the pale piece top-left of texture 0 is
         //    her face — neither is ever a rect here.
+        // The central rect is split around the legs: above y≈700 the sock
+        // (x 686–860, hue ≈41° — passes the warm gate!) and the thigh (x 642–890,
+        // shading hue ≈32° — passes the band) own everything right of x=640, while
+        // the shaded arm band the user wants shifted stays left of x=640 there.
+        // Below y=700 the band drifts right to x≈724 with no leg pieces around, so
+        // a lower-zone rect covers it — including (689,1038) — and the legs never
+        // get a rect.
         Region(
             key = "clothes", labelRes = R.string.live2d_region_clothes,
             rects = listOf(
                 RegionRect(1, 1280, 0, 740, 2048),
                 RegionRect(1, 1220, 230, 70, 300),
                 RegionRect(1, 1010, 1780, 200, 100),
-                RegionRect(1, 40, 40, 700, 1164)
+                RegionRect(1, 40, 40, 600, 1164),
+                RegionRect(1, 560, 700, 180, 480)
             ),
             satMin = 0.05f, valMin = 0.30f, hueMin = 35f, hueMax = 55f
         ),
@@ -238,7 +246,8 @@ private val hiyoriRegions = CharacterRegions(
             rects = listOf(
                 RegionRect(1, 1280, 0, 740, 2048),
                 RegionRect(1, 1220, 230, 70, 300),
-                RegionRect(1, 40, 40, 700, 1164)
+                RegionRect(1, 40, 40, 600, 1164),
+                RegionRect(1, 560, 700, 180, 480)
             ),
             // The 30–35° band at full fabric saturation: the jacket's shaded parts
             // are warm tan (hue ≈32–34°, s ≈0.27–0.31), inside this band and beyond
@@ -249,7 +258,8 @@ private val hiyoriRegions = CharacterRegions(
         Region(
             key = "clothes", labelRes = R.string.live2d_region_clothes,
             rects = listOf(
-                RegionRect(1, 40, 40, 700, 1164),
+                RegionRect(1, 40, 40, 600, 1164),
+                RegionRect(1, 560, 700, 180, 480),
                 RegionRect(1, 1280, 0, 740, 2048)
             ),
             satMin = 0.06f, satMax = 0.22f, valMin = 0.45f, hueMin = 195f, hueMax = 270f
