@@ -46,6 +46,7 @@ import kotlinx.coroutines.withContext
 private const val APACHE_ASSET = "licenses/apache-2.0.txt"
 private const val MIT_OPENAI_ASSET = "licenses/mit-openai-kotlin.txt"
 private const val MIT_MARKDOWN_ASSET = "licenses/mit-compose-markdown.txt"
+private const val LIVE2D_ASSET = "licenses/live2d-cubism-sdk.txt"
 
 /**
  * Where a component's licence text comes from.
@@ -75,6 +76,12 @@ private data class ThirdPartyLibrary(
  * entry was checked against the artifact's own POM or its repository, not assumed —
  * ML Kit and Play services in particular are *not* open source, and filing them under
  * Apache 2.0 here would be a false notice. Keep in step with `androidApp/build.gradle.kts`.
+ *
+ * The Live2D entry is the exception to the Gradle rule: the Cubism SDK is vendored
+ * source (`cubism/` at the repo root, linked through `androidApp/src/main/cpp`), and
+ * its notice spans three licences (Open Software for the Framework, Proprietary for
+ * Cubism Core, Free Material for the bundled sample models) — hence the bundled
+ * `live2d-cubism-sdk.txt` rather than one licence name and a URL.
  */
 private val thirdPartyLibraries = listOf(
     ThirdPartyLibrary(
@@ -99,7 +106,11 @@ private val thirdPartyLibraries = listOf(
         "LiteRT-LM (on-device inference)",
         "Google", "Apache 2.0", LicenseRef.Bundled(APACHE_ASSET)
     ),
-    ThirdPartyLibrary("Vosk", "Alpha Cephei", "Apache 2.0", LicenseRef.Bundled(APACHE_ASSET))
+    ThirdPartyLibrary("Vosk", "Alpha Cephei", "Apache 2.0", LicenseRef.Bundled(APACHE_ASSET)),
+    ThirdPartyLibrary(
+        "Live2D Cubism SDK (call characters)",
+        "Live2D", "Live2D Licenses", LicenseRef.Bundled(LIVE2D_ASSET)
+    )
 )
 
 /**

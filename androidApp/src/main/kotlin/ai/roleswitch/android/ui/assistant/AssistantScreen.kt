@@ -497,21 +497,20 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Fixed status slot, right under the header. The 28dp is on
-                    // AnimatedVisibility's own node, so it is held while hidden too
-                    // (the content merely fades inside it) — a toggling
-                    // "Listening…" can never re-measure, and so never resize, the
-                    // character area below.
-                    AnimatedVisibility(
-                        visible = isListening && !isMuted && !isVideoCallActive,
+                    // Fixed status slot, right under the header — a plain
+                    // fixed-height Box with conditional content, deliberately NOT
+                    // AnimatedVisibility: once its exit transition finishes its
+                    // layout goes empty (and each transition sweeps intermediate
+                    // heights), so the column re-measured on every listening-state
+                    // toggle and took the character's area with it. This Box always
+                    // occupies 28dp; the content simply appears inside it.
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(28.dp)
+                            .height(28.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        if (isListening && !isMuted && !isVideoCallActive) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
