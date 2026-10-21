@@ -11,8 +11,8 @@ android {
         applicationId = "ai.roleswitch.android"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 12
-        versionName = "1.1"
+        versionCode = 13
+        versionName = "1.2"
 
         // Live2D Cubism Core ships as static libs for these two ABIs only.
         ndk {
