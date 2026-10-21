@@ -197,27 +197,62 @@ private val hiyoriRegions = CharacterRegions(
         // 35° and would go patchy), hence the split. Note the cream/white pieces at
         // (660..1170, 140..690) are her LEGS and knee socks — not sleeves — and are
         // deliberately left out. First-match-wins: the sleeve entry is checked first.
-        // Cream top + sleeves. Two entries share the "clothes" key (one slider):
-        // A) the right-side sleeve cluster. Its fabric spans hue 32–45° — a 35°
-        //    floor left unshifted speckles inside the sleeves — while the hands
-        //    interleaved with it (hue ≈32°, s≥0.25) are held out by the saturation
-        //    ceiling instead: fabric is s≤0.22, skin never is.
+        // Cream top + sleeves. Three entries share the "clothes" key (one slider):
+        // A1) the sleeve cluster and the jacket's bottom-right piece. Hue separates
+        //     here: fabric and its darker shading sit at hue ≥35° while the
+        //     interleaved hands never exceed ≈34.6°.
+        // A2) the hue 30–35° band of the same strip, saturation-capped at 0.22 —
+        //     the fabric's AA edges dip below 35° too, and in that band only the
+        //     hands are s≥0.25, so the cap admits fabric and keeps skin out. (A
+        //     single 0.22 ceiling applied everywhere cut the darker fabric folds —
+        //     the "spots not processed".)
         // B) the big central mass, whose own shading drifts below 35°, on the wide
         //    hue gate. The warm-white tubes mid-atlas are her SOCKS (over the legs)
         //    and the pale piece top-left of texture 0 is her face — neither is ever
         //    a rect here.
+        // Cream top + sleeves. Three entries share the "clothes" key (one slider):
+        // 1) Warm fabric, hue ≥35° — the sleeve cluster, the jacket's bottom-right
+        //    piece, and the central mass extended over the arm band to x=730 so no
+        //    rect edge cuts through it. The forearm crossing this area is hue
+        //    ≈32°/s≈0.28 and never passes: an earlier 25° floor admitted its
+        //    left half only, leaving a visible seam at the old rect boundary.
+        // 2) The hue 30–35° band, saturation-capped at 0.22 — the fabric's AA
+        //    edges dip below 35°, and in that band only skin is s≥0.25.
+        // 3) The jacket's shadows are painted COOL (lavender-gray, hue ≈195–270°),
+        //    not as darker cream. The navy skirt stays out by value and saturation
+        //    (its pieces are v≤0.41 or s≥0.47). The warm-white tubes mid-atlas are
+        //    her SOCKS (over the legs) and the pale piece top-left of texture 0 is
+        //    her face — neither is ever a rect here.
         Region(
             key = "clothes", labelRes = R.string.live2d_region_clothes,
             rects = listOf(
                 RegionRect(1, 1280, 0, 740, 2048),
-                RegionRect(1, 1220, 230, 70, 300)
+                RegionRect(1, 1220, 230, 70, 300),
+                RegionRect(1, 1010, 1780, 200, 100),
+                RegionRect(1, 40, 40, 700, 1164)
             ),
-            satMin = 0.05f, satMax = 0.22f, valMin = 0.40f, hueMin = 32f, hueMax = 55f
+            satMin = 0.05f, valMin = 0.30f, hueMin = 35f, hueMax = 55f
         ),
         Region(
             key = "clothes", labelRes = R.string.live2d_region_clothes,
-            rects = listOf(RegionRect(1, 40, 40, 600, 1164)),
-            satMin = 0.06f, valMin = 0.50f, hueMin = 25f, hueMax = 55f
+            rects = listOf(
+                RegionRect(1, 1280, 0, 740, 2048),
+                RegionRect(1, 1220, 230, 70, 300),
+                RegionRect(1, 40, 40, 700, 1164)
+            ),
+            // The 30–35° band at full fabric saturation: the jacket's shaded parts
+            // are warm tan (hue ≈32–34°, s ≈0.27–0.31), inside this band and beyond
+            // the old 0.22 cap. The thighs that must NOT shift sit at hue ≈27° —
+            // below the band's floor — so the cap could widen without them.
+            satMin = 0.05f, satMax = 0.35f, valMin = 0.30f, hueMin = 30f, hueMax = 35f
+        ),
+        Region(
+            key = "clothes", labelRes = R.string.live2d_region_clothes,
+            rects = listOf(
+                RegionRect(1, 40, 40, 700, 1164),
+                RegionRect(1, 1280, 0, 740, 2048)
+            ),
+            satMin = 0.06f, satMax = 0.22f, valMin = 0.45f, hueMin = 195f, hueMax = 270f
         ),
         // Navy skirt (+ its gray shading) and the dark socks/shoes bits of tex 1.
         Region(
