@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import ai.roleswitch.android.R
 import ai.roleswitch.android.RolesWitchApp
 import ai.roleswitch.android.data.model.MessageThread
+import android.opengl.GLSurfaceView
+import ai.roleswitch.android.ui.components.CharacterCustomizeSheet
 import ai.roleswitch.android.ui.components.Live2DView
 import ai.roleswitch.android.ui.components.Live2dCharacters
 import kotlinx.coroutines.launch
@@ -106,7 +109,11 @@ fun CharacterPickerScreen(
     ) { Live2dCharacters.all.size }
 
     val stagedId = Live2dCharacters.all[pagerState.settledPage].id
-    val dirty = stagedId != storedId
+
+    // The customize sheet pushes preview textures through the GL surface's thread;
+    // the surface is created inside Live2DView, so it is captured here.
+    var glView by remember { mutableStateOf<GLSurfaceView?>(null) }
+    var showCustomize by remember { mutableStateOf(false) }
 
     fun save() {
         val current = thread ?: return
@@ -133,16 +140,16 @@ fun CharacterPickerScreen(
                     }
                 },
                 actions = {
-                    // Commit-and-leave, exactly like the Profile screen's check: hidden
-                    // while the staging matches what is stored, so back always means
-                    // "leave without changing anything".
-                    if (dirty) {
-                        IconButton(onClick = ::save) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = stringResource(R.string.save)
-                            )
-                        }
+                    // Commit-and-leave, exactly like the Profile screen's check.
+                    // Always visible: committing a staging that already matches the
+                    // stored id is a harmless no-op write, and a picker whose confirm
+                    // appears and disappears as you swipe reads as if the choice were
+                    // sometimes already made for you.
+                    IconButton(onClick = ::save) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = stringResource(R.string.save)
+                        )
                     }
                 }
             )
@@ -164,7 +171,8 @@ fun CharacterPickerScreen(
             ) {
                 Live2DView(
                     modifier = Modifier.fillMaxSize(),
-                    modelIndex = pagerState.settledPage
+                    modelIndex = pagerState.settledPage,
+                    onViewCreated = { glView = it }
                 )
 
                 // Transparent pages: swipe affordance and gesture carrier. Composed
@@ -209,6 +217,26 @@ fun CharacterPickerScreen(
                     )
                 }
             }
+
+            // Colour customization for the character being previewed. Writes through
+            // to disk (all threads sharing this character see it — it is a property
+            // of the bundled model, not of the thread's selection).
+            TextButton(
+                onClick = { showCustomize = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+            ) {
+                Text(stringResource(R.string.character_customize))
+            }
         }
+    }
+
+    if (showCustomize) {
+        CharacterCustomizeSheet(
+            characterId = stagedId,
+            glView = glView,
+            onDismiss = { showCustomize = false }
+        )
     }
 }

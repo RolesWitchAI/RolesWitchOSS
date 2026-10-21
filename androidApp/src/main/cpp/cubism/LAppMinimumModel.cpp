@@ -8,6 +8,8 @@
 #include "LAppMinimumModel.hpp"
 #include <fstream>
 #include <vector>
+// stb_image is declared here; STB_IMAGE_IMPLEMENTATION lives in LAppTextureManager.cpp
+#include "stb_image.h"
 #include <CubismModelSettingJson.hpp>
 #include <Motion/CubismMotion.hpp>
 #include <Physics/CubismPhysics.hpp>
@@ -575,6 +577,7 @@ void LAppMinimumModel::SetupTextures()
 
         //OpenGL
         GetRenderer<Rendering::CubismRenderer_OpenGLES2>()->BindTexture(modelTextureNumber, glTextueNumber);
+        _boundTextureIds[modelTextureNumber] = static_cast<csmUint32>(glTextueNumber);
     }
 
 #ifdef PREMULTIPLIED_ALPHA_ENABLE
@@ -599,4 +602,39 @@ Csm::Rendering::CubismOffscreenSurface_OpenGLES2 &LAppMinimumModel::GetRenderBuf
 void LAppMinimumModel::SetLipSyncValue(float value)
 {
     _lipSyncValue = value;
+}
+
+void LAppMinimumModel::UpdateTexture(Csm::csmInt32 modelTextureNumber, const Csm::csmByte* pngBytes, Csm::csmSizeInt size)
+{
+    // No rebind path: glTexImage2D on the existing texture object redefines its
+    // contents and everything sampling it picks the new pixels up on the next draw.
+    // Callers must be on the GL thread (the Kotlin side queues onto it).
+    std::map<csmInt32, csmUint32>::const_iterator it = _boundTextureIds.find(modelTextureNumber);
+    if (it == _boundTextureIds.end() || pngBytes == NULL || size == 0)
+    {
+        return;
+    }
+
+    int width, height, channels;
+    unsigned char* pixels = stbi_load_from_memory(
+        pngBytes,
+        static_cast<int>(size),
+        &width, &height, &channels,
+        STBI_rgb_alpha);
+    if (!pixels)
+    {
+        LAppPal::PrintLogLn("[DEBUG] UpdateTexture: stbi failed for texture %d", modelTextureNumber);
+        return;
+    }
+
+    // The load path in LAppTextureManager uploads straight (non-premultiplied)
+    // RGBA — PREMULTIPLIED_ALPHA_ENABLE is not defined for this target — so the
+    // replacement pixels must be uploaded the same way or the model's blending
+    // (GL_ONE, GL_ONE_MINUS_SRC_ALPHA with IsPremultipliedAlpha(false)) breaks.
+    glBindTexture(GL_TEXTURE_2D, it->second);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    stbi_image_free(pixels);
 }

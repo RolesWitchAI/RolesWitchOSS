@@ -168,6 +168,15 @@ void LAppMinimumLive2DManager::SetLipSyncValue(float value)
     }
 }
 
+void LAppMinimumLive2DManager::UpdateTexture(int textureIndex, const Csm::csmByte* pngBytes, Csm::csmSizeInt size)
+{
+    LAppMinimumModel* model = GetModel();
+    if (model)
+    {
+        model->UpdateTexture(textureIndex, pngBytes, size);
+    }
+}
+
 void LAppMinimumLive2DManager::SetAssetDirectory(const std::string &path)
 {
     _currentModelDirectory = path;

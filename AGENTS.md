@@ -267,6 +267,32 @@ thing; settling on a page switches the model in place.
   asset loader — the bridge's `JNI_OnLoad` hard-codes the
   `ai/roleswitch/android/service/CubismBridge` class name, so moving that class breaks
   the library load.
+- **Character colour customization lives in `ui/components/Live2dCustomizer.kt` (Android
+  only).** A "Customize" sheet on the character picker shifts the **hue of named regions**
+  (hair/clothes/skirt — deliberately nothing on the face: skin and eye regions existed
+  briefly and were removed) of the bundled atlases — each region is a set of pixel
+  rectangles plus saturation/value/hue gates, matched **first-match-wins** in table order
+  (rects overlap by design; a per-rect loop would double-shift shared pixels). The tables
+  were derived by segmenting the shipped textures and are pixel coordinates in *those*
+  atlases — they transfer to nothing else; re-derive if a model asset ever changes. Two
+  things make it work end to end:
+  - **Persistence rides `CubismBridge.LoadFile`, not native code.** Tinted PNGs are written
+    at `filesDir/live2d_custom/<same path as the asset>` — the asset-relative path already
+    begins with the character id, and the written path must byte-match the one `LoadFile`
+    probes (an early build nested the id twice and fresh loads silently fell back to the
+    assets). `LoadFile` prefers a file there over the asset. Every model load (call screen, picker, restart) goes through
+    it, so saved colours appear everywhere with zero native changes; a Reset deletes the
+    directory and the assets take back over. Slider state itself is write-through — each
+    applied slider state is persisted when it is previewed, and every regeneration starts
+    from the pristine asset bitmaps (never accumulates), so resets are pixel-exact.
+  - **Live preview re-uploads in place.** `nativeUpdateTexture(png, textureIndex)`
+    (JNI → manager → `LAppMinimumModel::UpdateTexture`) decodes the PNG on the GL thread
+    and `glTexImage2D`s it onto the *existing* GL texture object (`SetupTextures` records
+    the index→id map). Same id means nothing rebinds, and because
+    `LAppTextureManager` caches by file name, returning to a customized model after a
+    model switch reuses the same GL id the preview already updated. The upload is
+    straight (non-premultiplied) RGBA — `PREMULTIPLIED_ALPHA_ENABLE` is not defined for
+    this target; keep the replacement pixels that way too.
 - **`cubismId` is Android-only.** iOS never reads or writes the column; do not add it to
   `EffectiveSettings`/`applyThreadOverrides` (it is not an inference setting, and iOS
   has no engine to render it).

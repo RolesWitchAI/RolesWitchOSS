@@ -139,7 +139,10 @@ fun Live2DView(
     isRecording: Boolean = false,
     isSpeaking: Boolean = false,
     isThinking: Boolean = false,
-    isListening: Boolean = false
+    isListening: Boolean = false,
+    // Invoked once with the created GLSurfaceView. The character picker uses it to
+    // queue texture updates onto the GL thread (the customize sheet's live preview).
+    onViewCreated: ((GLSurfaceView) -> Unit)? = null
 ) {
     var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
     var motionIndex by remember { mutableIntStateOf(0) }
@@ -348,6 +351,7 @@ fun Live2DView(
                 }
 
                 glSurfaceView = this
+                onViewCreated?.invoke(this)
             }
         }
     )

@@ -75,6 +75,15 @@ public:
     void SetLipSyncValue(float value);
 
     /**
+    * @brief Replace one of the current model's texture images in place (GL thread only;
+    *        the Kotlin side queues the call onto the GL thread).
+    * @param[in] textureIndex model texture index, as in model3.json's Textures array
+    * @param[in] pngBytes     replacement image as PNG file bytes
+    * @param[in] size         byte length of pngBytes
+    */
+    void UpdateTexture(int textureIndex, const Csm::csmByte* pngBytes, Csm::csmSizeInt size);
+
+    /**
     * @brief Switch to a different model by index
     * @param[in] index Index in ModelDir array
     */

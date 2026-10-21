@@ -9,6 +9,7 @@
 
 #include <string>
 #include <functional>
+#include <map>
 #include <CubismFramework.hpp>
 #include <CubismModelSettingJson.hpp>
 #include <Type/csmRectF.hpp>
@@ -35,6 +36,15 @@ public:
     void SetupModel();
     Csm::Rendering::CubismOffscreenSurface_OpenGLES2& GetRenderBuffer();
 
+    /**
+     * Replaces the pixels of an already-bound model texture in place (the GL texture
+     * object keeps its id, so nothing downstream needs rebinding). Used by the
+     * character picker's colour-customization sheet to live-preview hue-shifted
+     * textures without rebuilding the model. Must run on the GL thread; no-op for an
+     * index this model never bound.
+     */
+    void UpdateTexture(Csm::csmInt32 modelTextureNumber, const Csm::csmByte* pngBytes, Csm::csmSizeInt size);
+
 private:
     void SetupTextures();
     void PreloadMotionGroup(const Csm::csmChar* group);
@@ -59,4 +69,8 @@ private:
     const Csm::CubismId* _idParamEyeBallY;
 
     Csm::Rendering::CubismOffscreenSurface_OpenGLES2 _renderBuffer;
+
+    /// model texture index -> GL texture id, filled by SetupTextures (rebuilt with
+    /// every renderer reload; see UpdateTexture).
+    std::map<Csm::csmInt32, Csm::csmUint32> _boundTextureIds;
 };

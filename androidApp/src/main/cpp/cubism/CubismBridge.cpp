@@ -166,6 +166,30 @@ extern "C"
     }
 
     JNIEXPORT void JNICALL
+    Java_ai_roleswitch_android_service_CubismBridge_nativeUpdateTexture(JNIEnv *env, jobject thiz, jbyteArray png, jint textureIndex)
+    {
+        // GL resources only exist once the framework is up (see nativeSetModelIndex);
+        // the Kotlin side queues this onto the GL thread so the upload races nothing.
+        if (!CubismFramework::IsStarted() || png == NULL)
+        {
+            return;
+        }
+        LAppMinimumLive2DManager* manager = LAppMinimumLive2DManager::GetInstance();
+        if (!manager)
+        {
+            return;
+        }
+        const jsize size = env->GetArrayLength(png);
+        jbyte* bytes = env->GetByteArrayElements(png, NULL);
+        if (bytes)
+        {
+            manager->UpdateTexture(textureIndex, reinterpret_cast<const Csm::csmByte*>(bytes),
+                                   static_cast<Csm::csmSizeInt>(size));
+            env->ReleaseByteArrayElements(png, bytes, JNI_ABORT);
+        }
+    }
+
+    JNIEXPORT void JNICALL
     Java_ai_roleswitch_android_service_CubismBridge_nativeOnResume(JNIEnv *env, jobject thiz)
     {
         LAppMinimumDelegate::GetInstance()->OnResume();
