@@ -489,12 +489,17 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
+                    // No top padding here — the two branches space themselves from
+                    // the header differently: the character wants its fixed status
+                    // row tucked close under it, the photo circle keeps its 16dp.
+                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
             if (characterIndex >= 0) {
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Fixed status slot, right under the header — a plain
@@ -565,6 +570,9 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    // The header gap the character branch shrinks to 4dp; the photo
+                    // layout keeps the 16dp it always had.
+                    .padding(top = 16.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
