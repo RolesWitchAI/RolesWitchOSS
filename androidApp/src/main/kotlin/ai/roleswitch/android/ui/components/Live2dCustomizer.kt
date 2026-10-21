@@ -82,6 +82,9 @@ internal data class RegionRect(val textureIndex: Int, val x: Int, val y: Int, va
  * @param labelRes localized row label in the sheet
  * @param satMin minimum saturation for a pixel to belong (0..1); grays below it are
  * left alone by every hue shift
+ * @param satMax maximum saturation (0..1). Where skin and fabric share a hue window
+ * (hiyori's sleeves sit over her arms at hue ≈35–42°) the skin's higher saturation
+ * is the only separator — a hue-only gate there stains the limbs' shading.
  * @param valMin minimum value/brightness (0..1)
  * @param valMax maximum value/brightness (0..1); hibiki/hiyori use it to keep their
  * dark hair regions from swallowing adjacent bright skin
@@ -94,6 +97,7 @@ internal data class Region(
     @StringRes val labelRes: Int,
     val rects: List<RegionRect>,
     val satMin: Float,
+    val satMax: Float = 1f,
     val valMin: Float = 0f,
     val valMax: Float = 1f,
     val hueMin: Float = 0f,
@@ -185,11 +189,34 @@ private val hiyoriRegions = CharacterRegions(
             ),
             satMin = 0.05f, valMax = 0.75f, hueMin = 5f, hueMax = 45f
         ),
-        // Cream blouse (near-white, s ≈ 0.11–0.21) — the big mass of texture 1.
-        // The arms sit outside this rect and are left alone.
+        // Cream blouse + sleeves. Two entries share the "clothes" key (one slider):
+        // the sleeve pieces fill the right side of texture 1 interleaved with her
+        // arms/hands, which match the blouse's saturation and value exactly — only
+        // a tighter hue window (sleeves ≈38–40° vs skin ≈32–34°) keeps them out.
+        // That window must NOT apply to the central mass (its shading drifts below
+        // 35° and would go patchy), hence the split. Note the cream/white pieces at
+        // (660..1170, 140..690) are her LEGS and knee socks — not sleeves — and are
+        // deliberately left out. First-match-wins: the sleeve entry is checked first.
+        // Cream top + sleeves. Two entries share the "clothes" key (one slider):
+        // A) the right-side sleeve cluster. Its fabric spans hue 32–45° — a 35°
+        //    floor left unshifted speckles inside the sleeves — while the hands
+        //    interleaved with it (hue ≈32°, s≥0.25) are held out by the saturation
+        //    ceiling instead: fabric is s≤0.22, skin never is.
+        // B) the big central mass, whose own shading drifts below 35°, on the wide
+        //    hue gate. The warm-white tubes mid-atlas are her SOCKS (over the legs)
+        //    and the pale piece top-left of texture 0 is her face — neither is ever
+        //    a rect here.
         Region(
             key = "clothes", labelRes = R.string.live2d_region_clothes,
-            rects = listOf(RegionRect(1, 40, 40, 612, 1164)),
+            rects = listOf(
+                RegionRect(1, 1280, 0, 740, 2048),
+                RegionRect(1, 1220, 230, 70, 300)
+            ),
+            satMin = 0.05f, satMax = 0.22f, valMin = 0.40f, hueMin = 32f, hueMax = 55f
+        ),
+        Region(
+            key = "clothes", labelRes = R.string.live2d_region_clothes,
+            rects = listOf(RegionRect(1, 40, 40, 600, 1164)),
             satMin = 0.06f, valMin = 0.50f, hueMin = 25f, hueMax = 55f
         ),
         // Navy skirt (+ its gray shading) and the dark socks/shoes bits of tex 1.
@@ -318,7 +345,7 @@ private fun renderTexture(
                 val d = (max - min).toFloat()
                 val v = max / 255f
                 val s = if (max == 0) 0f else d / max
-                if (s < region.satMin || v < region.valMin || v > region.valMax) continue
+                if (s < region.satMin || s > region.satMax || v < region.valMin || v > region.valMax) continue
                 val hu = when (max) {
                     min -> 0f
                     pr -> {
@@ -387,7 +414,23 @@ internal class Live2dCharacterEditor(private val context: Context, private val c
         if (table != null) {
             for (path in table.textures) {
                 list += runCatching {
-                    context.assets.open(path).use { BitmapFactory.decodeStream(it) }
+                    // inPremultiplied=false is load-bearing, not a nicety: a
+                    // premultiplied decode zeroes the RGB under soft alpha edges, and
+                    // the PNG re-encode then bakes that in. The Cubism renderer blends
+                    // straight alpha, so every re-encoded atlas would grow a dark
+                    // halo along anti-aliased outlines — first seen as a ring around
+                    // Haru's mouth, from any slider. Straight decode → straight
+                    // get/setPixels → straight encode leaves the pixels bit-identical
+                    // wherever no region matched.
+                    context.assets.open(path).use {
+                        BitmapFactory.decodeStream(
+                            it, null,
+                            BitmapFactory.Options().apply {
+                                inPremultiplied = false
+                                inScaled = false
+                            }
+                        )
+                    }
                 }.getOrNull()
             }
         }
@@ -537,7 +580,9 @@ fun CharacterCustomizeSheet(
                         .padding(top = 8.dp)
                 )
             }
-            regions.forEach { region ->
+            // One slider per region key — hiyori's clothes is two table entries
+            // (sleeve hue gate vs central-mass gate) but a single row.
+            regions.distinctBy { it.key }.forEach { region ->
                 val value = hues[region.key] ?: 0f
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
