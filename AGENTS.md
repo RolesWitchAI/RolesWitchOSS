@@ -236,7 +236,7 @@ thing; settling on a page switches the model in place.
   slots** — a 28dp status line above (a plain fixed-height `Box` with conditional
   content, *not* `AnimatedVisibility`: its node empties once its exit transition
   finishes, which re-measured the column and resized the character on every
-  listening-state toggle), the exactly-two-line lyrics (see below) at the
+  listening-state toggle), the exactly-three-line lyrics (see below) at the
   bottom, and the character's flexible `weight(1f)` area between them: any sibling
   that re-measures on a state change (a toggling "Listening…", growing lyrics) resizes
   the surface's box, and the GL surface rescales with its view bounds — the character

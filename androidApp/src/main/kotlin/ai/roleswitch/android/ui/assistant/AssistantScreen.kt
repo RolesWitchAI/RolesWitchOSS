@@ -547,17 +547,19 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     Spacer(Modifier.height(8.dp))
 
                     // Lyrics, fixed at the bottom — always composed, always
-                    // exactly two lines. Hiding them under the video dialog only
-                    // bought a resize of the character on the way back; the
-                    // dialog covers this whole window anyway.
+                    // exactly three lines (fixed both ways: minLines as well as
+                    // maxLines, so no text state can re-measure the character's
+                    // area above). Hiding them under the video dialog only bought
+                    // a resize of the character on the way back; the dialog covers
+                    // this whole window anyway.
                     ConversationLyricsView(
                         userMessage = humanMessage,
                         assistantMessage = assistantMessage,
                         isThinking = isThinking,
                         isSpeaking = ttsIsSpeaking,
                         isMuted = micIsOff,
-                        minLines = 2,
-                        maxLines = 2,
+                        minLines = 3,
+                        maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                         onStopTtsAndResumeStt = {
                             ttsService.stop()
