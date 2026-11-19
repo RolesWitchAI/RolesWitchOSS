@@ -6,7 +6,6 @@
 package ai.roleswitch.android.ui.assistant
 
 import android.Manifest
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -413,27 +412,12 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isRecording) {
-                        // Listening indicator
-                        AnimatedVisibility(visible = isListening && !isMuted) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            ) {
-                                PulsingDot()
-                                Text(
-                                    stringResource(R.string.listening),
-                                    fontSize = 12.sp,
-                                    color = Color.Red,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-
                         ConversationLyricsView(
                             userMessage = humanMessage,
                             assistantMessage = assistantMessage,
                             isThinking = isThinking,
                             isSpeaking = ttsIsSpeaking,
+                            isListening = isListening,
                             isMuted = micIsOff,
                             lightMode = true,
                             maxLines = 4
@@ -490,8 +474,9 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     .fillMaxSize()
                     .padding(padding)
                     // No top padding here — the two branches space themselves from
-                    // the header differently: the character wants its fixed status
-                    // row tucked close under it, the photo circle keeps its 16dp.
+                    // the header differently: the character branch keeps its 4dp
+                    // gap (its old status row is gone; "Listening…" lives in the
+                    // lyrics), the photo circle keeps its 16dp.
                     .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -502,33 +487,11 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                         .padding(top = 4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Fixed status slot, right under the header — a plain
-                    // fixed-height Box with conditional content, deliberately NOT
-                    // AnimatedVisibility: once its exit transition finishes its
-                    // layout goes empty (and each transition sweeps intermediate
-                    // heights), so the column re-measured on every listening-state
-                    // toggle and took the character's area with it. This Box always
-                    // occupies 28dp; the content simply appears inside it.
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(28.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isListening && !isMuted && !isVideoCallActive) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                PulsingDot()
-                                Text(
-                                    stringResource(R.string.listening),
-                                    fontSize = 12.sp,
-                                    color = Color.Red,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-                    }
+                    // No status row above the surface: "Listening…" is the lyrics'
+                    // idle branch now, carried by the same fixed three-line slot,
+                    // so nothing here toggles on the listening state and the
+                    // character's area can never be re-measured by it. (The row this
+                    // replaced was a fixed-height Box for exactly that reason.)
 
                     // The GL surface draws over the window inside its own bounds
                     // (setZOrderOnTop); everything above and below is fixed-size,
@@ -549,14 +512,16 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                     // Lyrics, fixed at the bottom — always composed, always
                     // exactly three lines (fixed both ways: minLines as well as
                     // maxLines, so no text state can re-measure the character's
-                    // area above). Hiding them under the video dialog only bought
-                    // a resize of the character on the way back; the dialog covers
-                    // this whole window anyway.
+                    // area above — including the "Listening…" status, which lives
+                    // in the idle branch). Hiding them under the video dialog only
+                    // bought a resize of the character on the way back; the dialog
+                    // covers this whole window anyway.
                     ConversationLyricsView(
                         userMessage = humanMessage,
                         assistantMessage = assistantMessage,
                         isThinking = isThinking,
                         isSpeaking = ttsIsSpeaking,
+                        isListening = isListening,
                         isMuted = micIsOff,
                         minLines = 3,
                         maxLines = 3,
@@ -583,22 +548,6 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                         avatarBytes = currentThread?.avatarBytes
                     )
 
-                    // Recording indicator
-                    AnimatedVisibility(visible = isListening && !isMuted && !isVideoCallActive) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            PulsingDot()
-                            Text(
-                                stringResource(R.string.listening),
-                                fontSize = 12.sp,
-                                color = Color.Red,
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
-                        }
-                    }
-
                     Spacer(Modifier.height(24.dp))
 
                     if (isRecording && !isVideoCallActive) {
@@ -607,6 +556,7 @@ fun AssistantScreen(app: RolesWitchApp, navController: NavController, threadId: 
                             assistantMessage = assistantMessage,
                             isThinking = isThinking,
                             isSpeaking = ttsIsSpeaking,
+                            isListening = isListening,
                             isMuted = micIsOff,
                             onStopTtsAndResumeStt = {
                                 ttsService.stop()
@@ -777,23 +727,6 @@ private fun ProfileCircle(
     }
 }
 
-@Composable
-fun PulsingDot() {
-    val infiniteTransition = rememberInfiniteTransition(label = "dot")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(800), RepeatMode.Reverse),
-        label = "alpha"
-    )
-    Box(
-        modifier = Modifier
-            .size(8.dp)
-            .clip(CircleShape)
-            .background(Color.Red.copy(alpha = alpha))
-    )
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ConversationLyricsView(
@@ -801,6 +734,7 @@ fun ConversationLyricsView(
     assistantMessage: String,
     isThinking: Boolean,
     isSpeaking: Boolean,
+    isListening: Boolean = false,
     isMuted: Boolean = false,
     lightMode: Boolean = false,
     minLines: Int = 1,
@@ -808,11 +742,18 @@ fun ConversationLyricsView(
     overflow: TextOverflow = TextOverflow.Clip,
     onStopTtsAndResumeStt: () -> Unit = {}
 ) {
+    // The branch order is the call's state machine. "Listening…" is the idle
+    // branch: it shows exactly while the mic is open and there is nothing else
+    // to say — a live partial transcript, "Thinking…", "You're muted" and the
+    // spoken reply all win over it, so the first recognised word replaces the
+    // status. It replaces the standalone red-dot bubble the call screen used to
+    // draw next to this view.
     val displayText = when {
         isThinking && assistantMessage.isEmpty() -> stringResource(R.string.thinking)
         userMessage.isNotEmpty() -> userMessage
         isMuted && !isThinking && !isSpeaking -> stringResource(R.string.you_are_muted)
         assistantMessage.isNotEmpty() -> MarkdownProcessor.stripMarkdown(assistantMessage)
+        isListening -> stringResource(R.string.listening)
         else -> ""
     }
     val isUser = userMessage.isNotEmpty() && !isThinking

@@ -233,15 +233,21 @@ thing; settling on a page switches the model in place.
 - **`setZOrderOnTop(true)` puts the GL surface above the window inside its own bounds.**
   Nothing Compose may overlap the view's box: where the character is, the surface wins.
   That is why the call screen keeps everything around the character in **fixed-size
-  slots** — a 28dp status line above (a plain fixed-height `Box` with conditional
-  content, *not* `AnimatedVisibility`: its node empties once its exit transition
-  finishes, which re-measured the column and resized the character on every
-  listening-state toggle), the exactly-three-line lyrics (see below) at the
+  slots** — the header above, the exactly-three-line lyrics (see below) at the
   bottom, and the character's flexible `weight(1f)` area between them: any sibling
-  that re-measures on a state change (a toggling "Listening…", growing lyrics) resizes
+  that re-measures on a state change (growing lyrics) resizes
   the surface's box, and the GL surface rescales with its view bounds — the character
   visibly "resized over and over" while it spoke. Same reason the lyrics are pinned
-  with `minLines` as well as `maxLines`. The picker's preview Surface contains only
+  with `minLines` as well as `maxLines`. There is deliberately **no status row above
+  the character**: the "Listening…" indicator that used to live there (a plain
+  fixed-height `Box` with conditional content, never `AnimatedVisibility` — its node
+  empties once its exit transition finishes, which re-measured the column on every
+  listening-state toggle) was removed as redundant; "Listening…" is the lyrics' idle
+  branch now (`ConversationLyricsView`'s `isListening`), carried by the same fixed
+  three-line slot so its appearance and replacement by the live transcript cannot
+  re-measure anything. iOS has *not* followed: its lyrics still renders the idle
+  branch empty and its call screens draw a separate indicator.
+  The picker's preview Surface contains only
   the view for the same reason. The same Z order is why the surface
   does not die with composition: it is not part of the window, pop transitions do not
   animate it away, and `onDispose` only runs when a pop *finishes* — left alone, the

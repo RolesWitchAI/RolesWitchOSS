@@ -10,13 +10,20 @@ import UIKit
 /// `ConversationLyricsView` (`androidApp/.../ui/assistant/AssistantScreen.kt`).
 ///
 /// Both iOS surfaces (the voice screen and the video overlay) render *this* view, so
-/// they cannot drift apart. The branch order below is Android's, verbatim:
+/// they cannot drift apart. The branch order below is Android's
+/// (`ConversationLyricsView`) with one divergence:
 ///
 ///  1. thinking, nothing spoken yet → "Thinking…"
 ///  2. a live user transcript       → the transcript, in green
 ///  3. mic off and idle             → "You're muted"
 ///  4. an assistant reply           → the reply, markdown-stripped
 ///  5. otherwise                    → empty
+///
+/// Android's idle branch additionally shows "Listening…" while its mic is open
+/// (`isListening`): the call's listening status lives in the lyrics there, and the
+/// standalone red indicator bubble was removed. iOS still draws its own
+/// `listeningIndicator` next to this view, so branch 5 stays empty here — do not
+/// "finish" the port without moving the iOS indicator too.
 ///
 /// The reply is shown **whole, at once** — Android does not stream or reveal it
 /// progressively (`TTSService` exposes only a binary `isSpeaking`, and the call
