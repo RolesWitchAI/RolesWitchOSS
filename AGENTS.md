@@ -176,6 +176,133 @@ compiled cache next to the weights — so deleting a model means
   To reproduce at the uid level: `adb shell run-as ai.roleswitch.android curl …` times
   out while the same `curl` under `adb shell` succeeds.
 
+## Live2D characters (Android only)
+
+Ported back from the old `RolesWitchAndroid` repo. A thread with a non-null
+`MessageThread.cubismId` renders a bundled Cubism model on the call screen instead of
+the avatar photo; null keeps the photo. Chosen from the Profile screen's avatar sheet
+("Use Character" → `CharacterPickerScreen`): characters are swiped through left/right
+and committed with the top-bar check (persisting then, like Profile's Save — back
+discards). Turning a character *off* lives in the Profile screen's avatar sheet
+("Disable Character", offered only while a character is set — it nulls `cubismId` and
+the photo underneath returns; the picker itself has no "use photo" exit). There **is**
+no
+long-tap model cycling in the call any more — the character is picked once, on the
+Profile screen. The picker keeps **one** GL surface behind a transparent pager — the
+native manager cannot hold more than one model, so per-page `Live2DView`s are not a
+thing; settling on a page switches the model in place.
+
+- **Three lists must stay index-aligned, and the order *is* the whole mapping:**
+  `Live2dCharacters.all` and `modelMotionConfigs` (both in `ui/components/Live2DView.kt`)
+  and the C `ModelDir[]` in `androidApp/src/main/cpp/cubism/LAppDefine.cpp`. The native
+  side only knows indices; a stored `cubismId` means nothing without this order.
+  `Live2dCharacters.indexOf` returns -1 for an unknown id, and every consumer treats -1
+  as "no character" (photo) — keep that fallback, it is what makes a registry change or
+  a stale id harmless.
+- **Mouth control is the native side's, and it depends on `_lipSyncIds`.** Some models'
+  motions carry mouth curves of their own — all of Hibiki's do, *Idle* included — which
+  reads as the character "talking while idle" unless something masks it. `Update()` in
+  `LAppMinimumModel.cpp` does: it forces every `_lipSyncIds` parameter to 0 while not
+  speaking and adds `_lipSyncValue` while speaking. That only works because
+  `SetupModel()` fills `_lipSyncIds` by scanning the model's own parameters for
+  "MOUTH_OPEN", matched **case- and underscore-insensitively** — hibiki/haru write
+  `PARAM_MOUTH_OPEN_Y`, hiyori writes `ParamMouthOpenY`, and the model3.json
+  `LipSync` group can't be the source (hibiki's json has none). The vector was
+  originally never populated at all, which made both halves of that block no-ops;
+  a later underscore-respecting match quietly re-broke hiyori. On the Kotlin side the lip-sync loop
+  resets `_lipSyncValue` in a `finally` — the loop is *cancelled* when speaking flips,
+  so a reset placed after it would never run and the mouth would stay open after a
+  reply.
+- **The native manager is a process-wide singleton holding one model.** Exactly one
+  `Live2DView` may be alive at a time (Navigation Compose guarantees this today — only
+  the top destination composes). Model switches must be queued to the GL thread via
+  `glSurfaceView.queueEvent { CubismBridge.nativeSetModelIndex(idx) }` — loading off the
+  GL thread races `OnUpdate`. `SwitchModel` no-ops when the index already matches, which
+  is what makes "seed the initial index *and* queue the switch" safe in `Live2DView`.
+- **Nothing may build the manager before `onSurfaceCreated` runs.** A queued runnable
+  can execute on the GL thread *before* the renderer's `onSurfaceCreated`, and the
+  manager's constructor allocates through the framework allocator that
+  `CubismFramework::StartUp` only registers inside `OnSurfaceCreate` — building it
+  earlier died on-device as a SIGSEGV in `operator new(CubismAllocationTag)`. Two
+  guards, both required to stay: `Live2DView` keys its switch/motion/lip-sync effects on
+  a `surfaceGeneration` counter bumped in `onSurfaceCreated`, and the JNI entry points
+  in `CubismBridge.cpp` (`nativeSetModelIndex`/`nativeStartMotion`/
+  `nativeSetLipSyncValue`/`nativeSwitchModel`/`nativeGetModelIndex`) check
+  `CubismFramework::IsStarted()` — staging only the initial index when the framework
+  is not up yet.
+- **`setZOrderOnTop(true)` puts the GL surface above the window inside its own bounds.**
+  Nothing Compose may overlap the view's box: where the character is, the surface wins.
+  That is why the call screen keeps everything around the character in **fixed-size
+  slots** — the header above, the exactly-three-line lyrics (see below) at the
+  bottom, and the character's flexible `weight(1f)` area between them: any sibling
+  that re-measures on a state change (growing lyrics) resizes
+  the surface's box, and the GL surface rescales with its view bounds — the character
+  visibly "resized over and over" while it spoke. Same reason the lyrics are pinned
+  with `minLines` as well as `maxLines`. There is deliberately **no status row above
+  the character**: the "Listening…" indicator that used to live there (a plain
+  fixed-height `Box` with conditional content, never `AnimatedVisibility` — its node
+  empties once its exit transition finishes, which re-measured the column on every
+  listening-state toggle) was removed as redundant; "Listening…" is the lyrics' idle
+  branch now (`ConversationLyricsView`'s `isListening`), carried by the same fixed
+  three-line slot so its appearance and replacement by the live transcript cannot
+  re-measure anything. iOS has *not* followed: its lyrics still renders the idle
+  branch empty and its call screens draw a separate indicator.
+  The picker's preview Surface contains only
+  the view for the same reason. The same Z order is why the surface
+  does not die with composition: it is not part of the window, pop transitions do not
+  animate it away, and `onDispose` only runs when a pop *finishes* — left alone, the
+  character kept floating over the incoming screen for a beat after leaving ("ghosting").
+  `Live2DView` therefore follows the destination's lifecycle and turns the surface
+  `GONE` on `ON_STOP` — Navigation lowers the outgoing entry's lifecycle at the *start*
+  of the pop — and restores it on `ON_START`.
+- **The Cubism SDK is vendored at the repo root `cubism/`** — `CMakeLists.txt` reaches it
+  through a relative `../../../../cubism/...` path from `androidApp/src/main/cpp/`, so
+  the layout is load-bearing. NDK/CMake versions are pinned in
+  `androidApp/build.gradle.kts` to what the old repo used. **`abiFilters` is
+  `arm64-v8a + x86_64` because Live2D ships no 32-bit ARM Core** (`Core/lib/android/`
+  has arm64-v8a, x86, x86_64 — no armeabi-v7a), so `libcubism-android.so` cannot be
+  built for v7a. The filter also strips vosk's armeabi-v7a/x86 slices, which is why
+  release 1.2 dropped ~3.1k 32-bit-only devices from the Play catalog — a deliberate
+  trade-off, not a bug. Model weights are committed
+  APK assets (`androidApp/src/main/assets/<id>/`, three models — the old repo's
+  `shizuku` was never selectable, and `rice_pro_en`, `haru_greeter_pro_jp` and
+  `mao_pro_en` were dropped from this port on purpose; a device still storing any of
+  them degrades to the photo through the -1 fallback, no migration involved — nor is
+  the background-image feature or its `hall.png` ported). `CubismBridge.setContext(this)` in `RolesWitchApp.onCreate` feeds
+  the JNI
+  asset loader — the bridge's `JNI_OnLoad` hard-codes the
+  `ai/roleswitch/android/service/CubismBridge` class name, so moving that class breaks
+  the library load.
+- **Character colour customization lives in `ui/components/Live2dCustomizer.kt` (Android
+  only).** A "Customize" sheet on the character picker shifts the **hue of named regions**
+  (hair/clothes/skirt — deliberately nothing on the face: skin and eye regions existed
+  briefly and were removed) of the bundled atlases — each region is a set of pixel
+  rectangles plus saturation/value/hue gates, matched **first-match-wins** in table order
+  (rects overlap by design; a per-rect loop would double-shift shared pixels). The tables
+  were derived by segmenting the shipped textures and are pixel coordinates in *those*
+  atlases — they transfer to nothing else; re-derive if a model asset ever changes. Two
+  things make it work end to end:
+  - **Persistence rides `CubismBridge.LoadFile`, not native code.** Tinted PNGs are written
+    at `filesDir/live2d_custom/<same path as the asset>` — the asset-relative path already
+    begins with the character id, and the written path must byte-match the one `LoadFile`
+    probes (an early build nested the id twice and fresh loads silently fell back to the
+    assets). `LoadFile` prefers a file there over the asset. Every model load (call screen, picker, restart) goes through
+    it, so saved colours appear everywhere with zero native changes; a Reset deletes the
+    directory and the assets take back over. Slider state itself is write-through — each
+    applied slider state is persisted when it is previewed, and every regeneration starts
+    from the pristine asset bitmaps (never accumulates), so resets are pixel-exact.
+  - **Live preview re-uploads in place.** `nativeUpdateTexture(png, textureIndex)`
+    (JNI → manager → `LAppMinimumModel::UpdateTexture`) decodes the PNG on the GL thread
+    and `glTexImage2D`s it onto the *existing* GL texture object (`SetupTextures` records
+    the index→id map). Same id means nothing rebinds, and because
+    `LAppTextureManager` caches by file name, returning to a customized model after a
+    model switch reuses the same GL id the preview already updated. The upload is
+    straight (non-premultiplied) RGBA — `PREMULTIPLIED_ALPHA_ENABLE` is not defined for
+    this target; keep the replacement pixels that way too.
+- **`cubismId` is Android-only.** iOS never reads or writes the column; do not add it to
+  `EffectiveSettings`/`applyThreadOverrides` (it is not an inference setting, and iOS
+  has no engine to render it).
+
 ## iOS app (`iosApp/`)
 
 iOS mirrors the Android feature surface: threads/messages, settings, onboarding
@@ -605,7 +732,7 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 - **Tests exist.** `:sharedLogic` has ~290 tests per target across four source sets,
   and they must stay passing:
   - `commonTest` (pure + service logic; runs on JVM, Android host, and iOS simulator),
-  - `jvmTest` (real-Room suites: seeding, the 6→27 migration chain, the Swift-facing
+  - `jvmTest` (real-Room suites: seeding, the 6→28 migration chain, the Swift-facing
     `AppContainer` facades),
   - `androidHostTest` (the PDFBox `PdfTextExtractor` actual; enabled via
     `withHostTest { isReturnDefaultValues = true }` on the android target),
@@ -657,7 +784,7 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
 
 ## Room / data
 
-- DB version is `27` (`AppDatabase.kt`), `exportSchema = false`. In order:
+- DB version is `28` (`AppDatabase.kt`), `exportSchema = false`. In order:
   `6_7` adds the `avatarBytes` BLOB; `7_8` adds the per-thread `custom*` override
   columns; `8_9` adds `customUseSystemTts`; `9_10` creates `mcp_tools`; `10_11`
   adds `customUseTools` + `customToolIds`; `11_12` clears both on threads with
@@ -683,8 +810,11 @@ is ever requested, target an emulator explicitly with `-s emulator-NNNN`.
   endpoint and token, separate from the inference `customApiUrl`/`customApiKey`, so a
   thread may speak through a different host than it chats; `26_27` rebuilds
   `message_threads` dropping `customVoiceSpeed` — the per-thread "Voice Speed"
-  override, whose feature is gone outright (neither engine takes a rate any more).
-  Every one must be registered on the Android **and** iOS
+  override, whose feature is gone outright (neither engine takes a rate any more);
+  `27_28` adds the per-thread `cubismId` column — the bundled Live2D character a
+  thread presents itself through on a call (Android-only feature; null = the
+  avatar photo, so every existing row keeps its photo). Every one must be
+  registered on the Android **and** iOS
   factories — missing either falls back to a destructive migration on that
   platform only. The KSP arg
   `room.schemaLocation = ${projectDir}/schemas` is set but the

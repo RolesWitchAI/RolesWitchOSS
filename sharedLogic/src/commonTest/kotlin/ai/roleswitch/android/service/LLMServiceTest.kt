@@ -590,6 +590,9 @@ class LLMServiceTest {
             while (!h.service.isStreaming.value) kotlinx.coroutines.delay(10)
         }
         h.service.cancelRequestForThread("thread-1")
+        withTimeout(5_000) {
+            while (h.service.isStreaming.value) kotlinx.coroutines.delay(10)
+        }
         // The cancelled turn's teardown — and therefore its discard — crosses a real
         // dispatcher (extractDocuments hops through Dispatchers.Default), so it lands
         // with real-time latency that no virtual-clock drain can fast-forward. Wait

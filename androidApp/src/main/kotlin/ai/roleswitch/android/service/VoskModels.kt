@@ -29,16 +29,19 @@ data class VoskModel(
  * Consumed by `VoskService` (model loading + readiness check) and by the
  * Settings UI (toggle / download flow).
  *
- * Only en-US is bundled: it ships in the APK and is lazily copied from assets
- * on first use, so it is always ready. Every other locale must be downloaded
- * and verified (CRC32 over the zip bytes) before it can be enabled. There is
- * no build-time dependency on the zip files for downloadable entries; only the
- * metadata lives here.
+ * Nothing is bundled any more — every locale is downloaded on demand and
+ * verified (CRC32 over the zip bytes) before it can be enabled, so a fresh
+ * install ships no model bytes at all and offline STT is opted into from
+ * Settings. There is no build-time dependency on the zip files; only the
+ * metadata lives here. The [VoskModel.bundled] flag and the asset-copy path
+ * in `VoskService` remain as the mechanism, in case a model is ever bundled
+ * again.
  *
- * ru-RU used to be bundled too. It was moved to the downloadable set before the
- * first Play release: its extracted tree is 87 MB, which cost ~44 MB of
- * compressed download for *every* user regardless of language — 42% of the
- * app's total download size for a model most of them never load.
+ * ru-RU used to be bundled too, moved to the downloadable set before the first
+ * Play release: its extracted tree is 87 MB, which cost ~44 MB of compressed
+ * download for *every* user regardless of language. en-US was the last to go:
+ * its tree is 68 MB (67.6 MB compressed — over half the bundle) for a model
+ * only offline-mode users ever load.
  */
 object VoskModels {
     val registry: Map<String, VoskModel> = mapOf(
@@ -48,7 +51,7 @@ object VoskModels {
             url = "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip",
             sizeBytes = 41_205_931L,
             crc32 = 4_241_006_371L,
-            bundled = true
+            bundled = false
         ),
         "ru-RU" to VoskModel(
             locale = "ru-RU",

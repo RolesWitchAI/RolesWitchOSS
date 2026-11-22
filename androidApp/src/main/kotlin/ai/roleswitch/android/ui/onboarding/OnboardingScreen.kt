@@ -73,7 +73,6 @@ import ai.roleswitch.android.RolesWitchApp
 import ai.roleswitch.android.data.resolveSeedLocale
 import ai.roleswitch.android.data.seedDefaults
 import ai.roleswitch.android.service.onDeviceInferenceSupported
-import ai.roleswitch.android.settings.SettingsManager
 import ai.roleswitch.android.ui.util.openUrl
 import kotlinx.coroutines.launch
 
@@ -112,15 +111,10 @@ fun OnboardingScreen(app: RolesWitchApp) {
             // seeded an English prompt but ran the app in Portuguese.
             val language = resolveSeedLocale()
             settingsManager.setLanguage(language)
-            val sttLocale = SettingsManager.localeForSTT[language]
-            // Onboarding only auto-enables Vosk for the bundled locales
-            // (en-US, ru-RU). Downloadable locales require the user to
-            // explicitly trigger the download from Settings.
-            if (sttLocale != null && ai.roleswitch.android.service.VoskModels.get(sttLocale)?.bundled == true) {
-                settingsManager.setUseVosk(true)
-            } else {
-                settingsManager.setUseVosk(false)
-            }
+            // No Vosk model is bundled any more — every locale, en-US included,
+            // is a Settings download — so offline STT is never auto-enabled here;
+            // the user opts in (and accepts the download) from Settings.
+            settingsManager.setUseVosk(false)
             // Only the engine — no model is picked here. Below Android 12 nothing
             // is written: the stored false is right, and on-device is not available.
             if (onDeviceInferenceSupported) {

@@ -265,6 +265,16 @@
     <string name="profile">Profile</string>
     <string name="remove_avatar">Remove avatar</string>
     <string name="change_image">Change image</string>
+    <!-- Live2D character (Android only): chosen from the avatar sheet, picked on its own screen -->
+    <string name="use_character">Use Character</string>
+    <string name="disable_character">Disable Character</string>
+    <string name="character">Character</string>
+    <!-- Live2D colour customization sheet (hue per region of the bundled models) -->
+    <string name="character_customize">Customize</string>
+    <string name="character_customize_reset">Reset colors</string>
+    <string name="live2d_region_hair">Hair</string>
+    <string name="live2d_region_clothes">Clothes</string>
+    <string name="live2d_region_skirt">Skirt</string>
     <string name="discard_changes">Discard changes?</string>
     <string name="discard">Discard</string>
 

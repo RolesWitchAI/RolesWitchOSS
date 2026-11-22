@@ -40,6 +40,7 @@ import ai.roleswitch.android.ui.components.ConfirmDialog
 import ai.roleswitch.android.ui.components.safePopBackStack
 import ai.roleswitch.android.ui.messages.MessagesScreen
 
+import ai.roleswitch.android.ui.messages.CharacterPickerScreen
 import ai.roleswitch.android.ui.messages.ThreadsScreen
 import ai.roleswitch.android.ui.messages.ThreadProfileScreen
 import ai.roleswitch.android.ui.onboarding.OnboardingScreen
@@ -235,6 +236,22 @@ fun MainApp(
             ) { backStackEntry ->
                 val threadId = backStackEntry.arguments?.getString("threadId") ?: return@composable
                 ThreadProfileScreen(
+                    app = app,
+                    threadId = threadId,
+                    onBack = { navController.safePopBackStack() },
+                    onNavigateToCharacter = {
+                        navController.navigate("character/$threadId") {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(
+                route = "character/{threadId}",
+                arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val threadId = backStackEntry.arguments?.getString("threadId") ?: return@composable
+                CharacterPickerScreen(
                     app = app,
                     threadId = threadId,
                     onBack = { navController.safePopBackStack() }

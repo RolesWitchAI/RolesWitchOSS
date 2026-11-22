@@ -267,6 +267,16 @@
     <string name="profile">Профиль</string>
     <string name="remove_avatar">Удалить аватар</string>
     <string name="change_image">Изменить фото</string>
+    <!-- Live2D-персонаж (только Android): выбирается в меню аватара, подбор — на отдельном экране -->
+    <string name="use_character">Использовать персонажа</string>
+    <string name="disable_character">Отключить персонажа</string>
+    <string name="character">Персонаж</string>
+    <!-- Лист настройки цветов Live2D (оттенок по зонам встроенных моделей) -->
+    <string name="character_customize">Настроить</string>
+    <string name="character_customize_reset">Сбросить цвета</string>
+    <string name="live2d_region_hair">Волосы</string>
+    <string name="live2d_region_clothes">Одежда</string>
+    <string name="live2d_region_skirt">Юбка</string>
     <string name="discard_changes">Отменить изменения?</string>
     <string name="discard">Отменить</string>
 

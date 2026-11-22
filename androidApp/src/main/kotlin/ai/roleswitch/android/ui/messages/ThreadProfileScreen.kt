@@ -9,7 +9,10 @@ import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,6 +31,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,10 +66,12 @@ import ai.roleswitch.android.ui.assistant.CameraCaptureScreen
 import ai.roleswitch.android.ui.components.ConfirmDialog
 import ai.roleswitch.android.ui.components.rememberPermissionRequester
 import ai.roleswitch.android.data.model.MessageThread
+import ai.roleswitch.android.ui.components.Live2dCharacters
 import ai.roleswitch.android.ui.components.ThreadAvatar
 import ai.roleswitch.android.ui.components.appOutlinedTextFieldColors
 import ai.roleswitch.android.ui.util.uriToCompressedBytes
 import androidx.core.content.FileProvider
+import androidx.compose.ui.draw.clip
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -72,7 +80,8 @@ import kotlinx.coroutines.launch
 fun ThreadProfileScreen(
     app: RolesWitchApp,
     threadId: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToCharacter: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
@@ -164,6 +173,15 @@ fun ThreadProfileScreen(
         }
     }
 
+    fun disableCharacter() {
+        showSourcePicker = false
+        val current = thread ?: return
+        scope.launch {
+            app.database.updateThreadCubismId(current, null)
+            thread = current.copy(cubismId = null)
+        }
+    }
+
     fun save() {
         scope.launch {
             thread?.let { app.database.updateThreadTitleAndPrompt(it, title.trim(), prompt.trim()) }
@@ -174,6 +192,12 @@ fun ThreadProfileScreen(
     fun handleBack() {
         if (dirty) showDiscardDialog = true else onBack()
     }
+
+    // A character set on this thread takes over the call visuals; the photo stays
+    // underneath (it still shows in lists and chat headers) and comes back when the
+    // character is disabled from the avatar sheet. An id that no longer maps to a
+    // known character counts as "no character", like everywhere else.
+    val hasCharacter = Live2dCharacters.indexOf(thread?.cubismId) >= 0
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -209,11 +233,33 @@ fun ThreadProfileScreen(
         ) {
             Spacer(Modifier.height(32.dp))
 
-            ThreadAvatar(
-                name = title.ifBlank { thread?.title ?: "" },
-                avatarBytes = thread?.avatarBytes,
-                size = 160.dp
-            )
+            // A character set on this thread takes over the call visuals; the photo
+            // stays underneath (it still shows in lists and chat headers).
+            Box {
+                ThreadAvatar(
+                    name = title.ifBlank { thread?.title ?: "" },
+                    avatarBytes = thread?.avatarBytes,
+                    size = 160.dp
+                )
+                if (hasCharacter) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .border(3.dp, MaterialTheme.colorScheme.surface, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.TheaterComedy,
+                            contentDescription = stringResource(R.string.character),
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
 
             TextButton(onClick = { showSourcePicker = true }) {
                 Text(
@@ -286,6 +332,24 @@ fun ThreadProfileScreen(
                     leadingIcon = { Icon(Icons.Default.CameraAlt, null) },
                     onClick = ::requestCamera
                 )
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(stringResource(R.string.use_character)) },
+                    leadingIcon = { Icon(Icons.Default.TheaterComedy, null) },
+                    onClick = {
+                        showSourcePicker = false
+                        onNavigateToCharacter()
+                    }
+                )
+                // The off switch, mirroring "Remove avatar": offered only while a
+                // character is actually set, and neutral rather than destructive —
+                // the photo underneath is kept, so "Use Character" simply reverses it.
+                if (hasCharacter) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(stringResource(R.string.disable_character)) },
+                        leadingIcon = { Icon(Icons.Default.TheaterComedy, null) },
+                        onClick = ::disableCharacter
+                    )
+                }
                 if (thread?.avatarBytes != null) {
                     androidx.compose.material3.DropdownMenuItem(
                         text = {

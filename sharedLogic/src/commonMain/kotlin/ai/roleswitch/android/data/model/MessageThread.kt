@@ -18,6 +18,13 @@ data class MessageThread(
     val title: String,
     val prompt: String = "",
     val avatarBytes: ByteArray? = null,
+    /**
+     * Per-thread Live2D character: the id of a bundled Cubism model
+     * (see the Android-only `Live2dCharacters` registry). Null means the thread
+     * presents itself through its [avatarBytes] photo; non-null means the call
+     * screen renders the character instead. Android-only — iOS never reads it.
+     */
+    val cubismId: String? = null,
     val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val updatedAt: Long = Clock.System.now().toEpochMilliseconds(),
     val useCustomSettings: Boolean = false,
@@ -104,6 +111,7 @@ data class MessageThread(
             title == other.title &&
             prompt == other.prompt &&
             avatarBytes.contentEquals(other.avatarBytes) &&
+            cubismId == other.cubismId &&
             createdAt == other.createdAt &&
             updatedAt == other.updatedAt &&
             useCustomSettings == other.useCustomSettings &&
@@ -148,6 +156,7 @@ data class MessageThread(
         result = 31 * result + title.hashCode()
         result = 31 * result + prompt.hashCode()
         result = 31 * result + (avatarBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (cubismId?.hashCode() ?: 0)
         result = 31 * result + createdAt.hashCode()
         result = 31 * result + updatedAt.hashCode()
         result = 31 * result + useCustomSettings.hashCode()
